@@ -1,6 +1,6 @@
 package br.com.devTT.core.abstractions.application.services;
 
-import br.com.devTT.core.abstractions.domain.entities.Token;
+import br.com.devTT.core.abstractions.domain.valueobjects.Token;
 
 public interface TokenService {
     public Token create(Long idUser);

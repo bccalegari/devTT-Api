@@ -1,8 +1,8 @@
 package br.com.devTT.core.application.services;
 
 import br.com.devTT.core.abstractions.application.services.TokenService;
-import br.com.devTT.core.abstractions.domain.entities.Token;
-import br.com.devTT.core.domain.entities.JwtToken;
+import br.com.devTT.core.abstractions.domain.valueobjects.Token;
+import br.com.devTT.core.domain.valueobjects.JwtToken;
 import br.com.devTT.infrastructure.configuration.environment.JwtEnvironmentConfig;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Slf4j
 @Service
@@ -42,7 +40,7 @@ public class JwtTokenService implements TokenService {
             throw exception;
         }
 
-        return new JwtToken(token, LocalDateTime.ofInstant(expirationTime, ZoneOffset.UTC), idUser);
+        return new JwtToken(token);
     }
 
     @Override

@@ -20,4 +20,3 @@ public class SpringBCryptPasswordEncoderService implements PasswordEncoderServic
            return encoder.matches(password, encodedPassword);
     }
 }
-
