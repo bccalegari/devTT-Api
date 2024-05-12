@@ -5,7 +5,6 @@ import br.com.devTT.core.abstractions.domain.entities.Token;
 import br.com.devTT.core.domain.entities.JwtToken;
 import br.com.devTT.infrastructure.configuration.environment.JwtEnvironmentConfig;
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -21,6 +20,8 @@ import java.time.ZoneOffset;
 @Service
 @Qualifier("JwtTokenService")
 public class JwtTokenService implements TokenService {
+    private static final String EMPTY_STRING = "";
+
     @Override
     public Token create(Long idUser) {
         Instant expirationTime;
@@ -45,17 +46,15 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public boolean isValid(String token, String secretKey) {
+    public String extractSubject(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .build();
-
-            verifier.verify(token);
+            return JWT.require(algorithm)
+                    .build()
+                    .verify(token)
+                    .getSubject();
         } catch (JWTVerificationException exception){
-            return false;
+            return EMPTY_STRING;
         }
-
-        return true;
     }
 }

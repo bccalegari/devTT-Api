@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class JwtToken implements Token {
     private final String token;
     private final LocalDateTime expirationDate;
-    private final long idUser;
+    private final Long idUser;
 
     @Override
     public boolean isExpired() {
