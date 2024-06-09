@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -27,7 +24,7 @@ public class SpringAuthController {
     public ResponseEntity<OutputDto> login(@Valid @RequestBody AuthLoginInputDto inputDto) {
         Token token = loginUseCase.execute(inputDto.getEmail(), inputDto.getPassword());
 
-        AuthLoginOutputDto outputDto = new AuthLoginOutputDto("User logged in successfully",
+        AuthLoginOutputDto outputDto = new AuthLoginOutputDto("Login realizado com sucesso!",
                 token.getToken());
 
         return ResponseEntity.ok(outputDto);

@@ -43,13 +43,13 @@ public class SpringUserLoginUseCase implements UserLoginUseCase {
         Optional<UserEntity> userEntity = userRepository.findByEmail(email);
 
         if (userEntity.isEmpty()) {
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException("Email ou senha inválidos");
         }
 
         user = userDomainMapper.toDomain(userEntity.get());
 
         if (!passwordEncoderService.matches(password, user.getPassword())) {
-            throw new InvalidPasswordException("Invalid email or password");
+            throw new InvalidPasswordException("Email ou senha inválidos");
         }
 
         return tokenService.create(1L);

@@ -11,7 +11,7 @@ public class JwtEnvironmentConfig {
     private static String getSecretKeyEnv() {
         String secretKey = System.getenv("JWT_SECRET");
         if (secretKey == null || secretKey.isEmpty()) {
-            throw new JwtSecretNotFoundException("JWT_SECRET not found in environment variables");
+            throw new JwtSecretNotFoundException("A variável de ambiente JWT_SECRET não foi encontrada.");
         }
         return secretKey;
     }

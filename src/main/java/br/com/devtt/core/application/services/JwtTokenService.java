@@ -35,9 +35,9 @@ public class JwtTokenService implements TokenService {
                     .withSubject(idUser.toString())
                     .withExpiresAt(expirationTime)
                     .sign(algorithm);
-        } catch (JWTCreationException exception){
-            log.error("Error creating JWT token", exception);
-            throw exception;
+        } catch (JWTCreationException e){
+            log.error(e.getMessage(), e);
+            throw e;
         }
 
         return new JwtToken(token);
