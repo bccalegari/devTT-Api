@@ -16,21 +16,6 @@ services:
         aliases:
           - postgres
 
-  mongo:
-    image: mongo:5
-    container_name: devTT_mongo
-    expose: [27017]
-    environment:
-      - MONGO_INITDB_DATABASE=devTT
-      - MONGO_INITDB_USERNAME=devTT
-      - MONGO_INITDB_PASSWORD=123
-    ports:
-      - "27018:27017"
-    networks:
-      devTT_network:
-        aliases:
-          - mongo
-
   api:
     image: openjdk:21-jdk
     container_name: devTT_api
@@ -75,5 +60,3 @@ networks:
 volumes:
   postgres_data:
     name: devTT_postgres_data
-  mongo_data:
-    name: devTT_mongo_data
