@@ -8,6 +8,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -16,14 +19,29 @@ public class WebSecurityConfig {
     @Autowired
     private SecurityFilter securityFilter;
 
+    @Autowired
+    private AuthenticationEntryPointImpl authenticationEntryPoint;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize -> authorize
+        http.csrf(AbstractHttpConfigurer::disable)
+        .cors(cors ->
+                cors.configurationSource(request -> {
+                    CorsConfiguration corsConfiguration = new CorsConfiguration();
+                    corsConfiguration.setAllowedOrigins(List.of("http://localhost:4200"));
+                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+                    corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+                    return corsConfiguration;
+                })
+        )
+        .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()
-        );
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.addFilterBefore(securityFilter, BasicAuthenticationFilter.class);
+        )
+        .exceptionHandling(exceptionHandling -> exceptionHandling
+                .authenticationEntryPoint(authenticationEntryPoint)
+        )
+        .addFilterBefore(securityFilter, BasicAuthenticationFilter.class);
         return http.build();
     }
 
