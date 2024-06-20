@@ -21,7 +21,7 @@ public class JwtTokenService implements TokenService {
     private static final String EMPTY_STRING = "";
 
     @Override
-    public Token create(Long idUser, String role) {
+    public Token create(Long idUser, String name, String role) {
         Instant expirationTime;
         String token;
 
@@ -33,6 +33,7 @@ public class JwtTokenService implements TokenService {
                     .withIssuer("devTT")
                     .withIssuedAt(Instant.now())
                     .withSubject(idUser.toString())
+                    .withClaim("name", name)
                     .withClaim("role", role)
                     .withExpiresAt(expirationTime)
                     .sign(algorithm);
@@ -52,6 +53,20 @@ public class JwtTokenService implements TokenService {
                     .build()
                     .verify(token)
                     .getSubject();
+        } catch (JWTVerificationException exception){
+            return EMPTY_STRING;
+        }
+    }
+
+    @Override
+    public String extractName(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
+            return JWT.require(algorithm)
+                    .build()
+                    .verify(token)
+                    .getClaim("name")
+                    .asString();
         } catch (JWTVerificationException exception){
             return EMPTY_STRING;
         }

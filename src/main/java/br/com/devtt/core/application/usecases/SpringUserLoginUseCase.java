@@ -52,6 +52,6 @@ public class SpringUserLoginUseCase implements UserLoginUseCase {
             throw new InvalidPasswordException("Email ou senha inválidos");
         }
 
-        return tokenService.create(user.getIdUser(), user.getRole().getName());
+        return tokenService.create(user.getIdUser(), user.getFullName(), user.getRole().getName());
     }
 }

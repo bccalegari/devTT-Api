@@ -32,8 +32,9 @@ public class SecurityFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String bearerToken = getBearerToken(request);
         String subject = tokenService.extractSubject(bearerToken);
+        String name = tokenService.extractName(bearerToken);
         String role = tokenService.extractRole(bearerToken);
-        setRequestAttribute(request, subject, role);
+        setRequestAttribute(request, subject, name, role);
         filterChain.doFilter(request, response);
     }
 
@@ -42,9 +43,10 @@ public class SecurityFilter extends OncePerRequestFilter {
         return header != null && header.startsWith("Bearer ") ? header.replace("Bearer ", "") : "";
     }
 
-    private void setRequestAttribute(HttpServletRequest request, String subject, String role) {
+    private void setRequestAttribute(HttpServletRequest request, String subject, String name, String role) {
         if (!subject.isEmpty()) {
             request.setAttribute("idUser", subject);
+            request.setAttribute("name", name);
             request.setAttribute("role", role);
             setSpringSecurityContext(subject, Collections.singletonList(getGrant(role)));
         }
