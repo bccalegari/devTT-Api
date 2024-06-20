@@ -8,15 +8,20 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @Component
+@EnableMethodSecurity
 public class SecurityFilter extends OncePerRequestFilter {
+    private static final String ROLE_PREFIX = "ROLE_";
 
     @Autowired
     @Qualifier("JwtTokenService")
@@ -27,7 +32,8 @@ public class SecurityFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String bearerToken = getBearerToken(request);
         String subject = tokenService.extractSubject(bearerToken);
-        setRequestAttribute(request, subject);
+        String role = tokenService.extractRole(bearerToken);
+        setRequestAttribute(request, subject, role);
         filterChain.doFilter(request, response);
     }
 
@@ -36,16 +42,21 @@ public class SecurityFilter extends OncePerRequestFilter {
         return header != null && header.startsWith("Bearer ") ? header.replace("Bearer ", "") : "";
     }
 
-    private void setRequestAttribute(HttpServletRequest request, String subject) {
+    private void setRequestAttribute(HttpServletRequest request, String subject, String role) {
         if (!subject.isEmpty()) {
             request.setAttribute("idUser", subject);
-            setSpringSecurityContext(subject);
+            request.setAttribute("role", role);
+            setSpringSecurityContext(subject, Collections.singletonList(getGrant(role)));
         }
     }
 
-    private void setSpringSecurityContext(String subject) {
+    private SimpleGrantedAuthority getGrant(String role) {
+        return new SimpleGrantedAuthority(ROLE_PREFIX + role.toUpperCase());
+    }
+
+    private void setSpringSecurityContext(String subject, List<SimpleGrantedAuthority> grants) {
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(subject, null, Collections.emptyList());
+                    new UsernamePasswordAuthenticationToken(subject, null, grants);
             SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
