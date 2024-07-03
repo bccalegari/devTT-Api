@@ -18,9 +18,13 @@ public class WebSecurityConfig {
 
     @Autowired
     private SecurityFilter securityFilter;
-
     @Autowired
     private AuthenticationEntryPointImpl authenticationEntryPoint;
+    private static final String[] SWAGGER_ROUTES = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**"
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -36,6 +40,7 @@ public class WebSecurityConfig {
         )
         .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/auth/login").permitAll()
+                .requestMatchers(SWAGGER_ROUTES).permitAll()
                 .anyRequest().authenticated()
         )
         .exceptionHandling(exceptionHandling -> exceptionHandling
