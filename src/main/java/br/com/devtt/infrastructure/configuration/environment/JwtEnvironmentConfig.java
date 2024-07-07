@@ -9,7 +9,8 @@ public class JwtEnvironmentConfig {
     public static final long EXPIRATION_TIME = 86400000; // 1 day in milliseconds
 
     private static String getSecretKeyEnv() {
-        String secretKey = System.getenv("JWT_SECRET");
+        EnvironmentConfig env = EnvironmentConfig.getInstance();
+        String secretKey = env.get("JWT_SECRET");
         if (secretKey == null || secretKey.isEmpty()) {
             throw new JwtSecretNotFoundException("A variável de ambiente JWT_SECRET não foi encontrada.");
         }

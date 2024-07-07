@@ -37,7 +37,7 @@ public class JwtTokenService implements TokenService {
                     .withClaim("role", role)
                     .withExpiresAt(expirationTime)
                     .sign(algorithm);
-        } catch (JWTCreationException e){
+        } catch (JWTCreationException | NullPointerException e){
             log.error(e.getMessage(), e);
             throw e;
         }

@@ -3,9 +3,11 @@ package br.com.devtt.infrastructure.configuration.spring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,13 +16,14 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
     @Autowired
     private SecurityFilter securityFilter;
     @Autowired
     private AuthenticationEntryPointImpl authenticationEntryPoint;
-    private static final String[] SWAGGER_ROUTES = {
+    private static final String[] SWAGGER_WHITELIST = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-resources/**"
@@ -38,9 +41,10 @@ public class WebSecurityConfig {
                     return corsConfiguration;
                 })
         )
+        .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/auth/login").permitAll()
-                .requestMatchers(SWAGGER_ROUTES).permitAll()
+                .requestMatchers(SWAGGER_WHITELIST).permitAll()
                 .anyRequest().authenticated()
         )
         .exceptionHandling(exceptionHandling -> exceptionHandling
