@@ -30,16 +30,16 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String bearerToken = getBearerToken(request);
-        String subject = tokenService.extractSubject(bearerToken);
-        String name = tokenService.extractName(bearerToken);
-        String role = tokenService.extractRole(bearerToken);
+        var bearerToken = getBearerToken(request);
+        var subject = tokenService.extractSubject(bearerToken);
+        var name = tokenService.extractName(bearerToken);
+        var role = tokenService.extractRole(bearerToken);
         setRequestAttribute(request, subject, name, role);
         filterChain.doFilter(request, response);
     }
 
     private String getBearerToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
+        var header = request.getHeader("Authorization");
         return header != null && header.startsWith("Bearer ") ? header.replace("Bearer ", "") : "";
     }
 

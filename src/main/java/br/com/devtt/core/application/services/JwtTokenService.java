@@ -27,7 +27,7 @@ public class JwtTokenService implements TokenService {
 
         try {
             expirationTime = Instant.now().plusMillis(JwtEnvironmentConfig.EXPIRATION_TIME);
-            Algorithm algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
+            var algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
 
             token = JWT.create()
                     .withIssuer("devTT")
@@ -48,7 +48,7 @@ public class JwtTokenService implements TokenService {
     @Override
     public String extractSubject(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
+            var algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
             return JWT.require(algorithm)
                     .build()
                     .verify(token)
@@ -61,7 +61,7 @@ public class JwtTokenService implements TokenService {
     @Override
     public String extractName(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
+            var algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
             return JWT.require(algorithm)
                     .build()
                     .verify(token)
@@ -75,7 +75,7 @@ public class JwtTokenService implements TokenService {
     @Override
     public String extractRole(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
+            var algorithm = Algorithm.HMAC256(JwtEnvironmentConfig.SECRET_KEY);
             return JWT.require(algorithm)
                     .build()
                     .verify(token)

@@ -20,7 +20,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     }
 
     private String getResponseMessage() throws JsonProcessingException {
-        OutputDto responseDto = new OutputDto("Acesso negado! Faça login para acessar o recurso.");
+        var responseDto = new OutputDto("Acesso negado! Faça login para acessar o recurso.");
         return new ObjectMapper().writeValueAsString(responseDto);
     }
 

@@ -40,7 +40,7 @@ public class SpringUserLoginUseCase implements UserLoginUseCase {
     @Override
     public Token execute(String email, String password) {
         User user;
-        Optional<UserEntity> userEntity = userRepository.findByEmail(email);
+        var userEntity = userRepository.findByEmail(email);
 
         if (userEntity.isEmpty()) {
             throw new UserNotFoundException("Email ou senha inválidos");

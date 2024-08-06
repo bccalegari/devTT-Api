@@ -50,9 +50,9 @@ public class SpringAuthController {
             }
     )
     public ResponseEntity<OutputDto> login(@Valid @RequestBody AuthLoginInputDto inputDto) {
-        Token token = loginUseCase.execute(inputDto.getEmail(), inputDto.getPassword());
+        var token = loginUseCase.execute(inputDto.getEmail(), inputDto.getPassword());
 
-        AuthLoginOutputDto outputDto = new AuthLoginOutputDto("Login realizado com sucesso!",
+        var outputDto = new AuthLoginOutputDto("Login realizado com sucesso!",
                 token.getValue());
 
         return ResponseEntity.ok(outputDto);
