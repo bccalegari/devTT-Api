@@ -1,21 +1,8 @@
 CREATE SCHEMA security;
 
-CREATE TABLE security.permission(
-	"id" SERIAL PRIMARY KEY,
-	name VARCHAR NOT NULL
-);
-
 CREATE TABLE security.role(
 	"id" SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL
-);
-
-CREATE TABLE security."rolePermission"(
-	"idRole" INT,
-	"idPermission" INT,
-	PRIMARY KEY("idRole", "idPermission"),
-	FOREIGN KEY ("idRole") REFERENCES security.role("idRole"),
-	FOREIGN KEY ("idPermission") REFERENCES security.permission("idPermission")
 );
 
 CREATE SCHEMA info;
