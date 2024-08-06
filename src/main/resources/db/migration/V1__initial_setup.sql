@@ -1,12 +1,12 @@
 CREATE SCHEMA security;
 
 CREATE TABLE security.permission(
-	"idPermission" SERIAL PRIMARY KEY,
+	"id" SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL
 );
 
 CREATE TABLE security.role(
-	"idRole" SERIAL PRIMARY KEY,
+	"id" SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL
 );
 
@@ -21,13 +21,13 @@ CREATE TABLE security."rolePermission"(
 CREATE SCHEMA info;
 
 CREATE TABLE info.state(
-	"idState" SERIAL PRIMARY KEY,
+	"id" SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
 	"isoAlpha2" CHAR(2) NOT NULL
 );
 
 CREATE TABLE info.city(
-	"idCity" SERIAL PRIMARY KEY,
+	"id" SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
 	"stateAcronym" CHAR(2) NOT NULL,
 	"idState" INT NOT NULL,
@@ -37,19 +37,19 @@ CREATE TABLE info.city(
 CREATE SCHEMA client;
 
 CREATE TABLE client.company(
-	"idCompany" SERIAL PRIMARY KEY,
+	"id" SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL
 );
 
 CREATE TABLE client.user(
-	"idUser" BIGSERIAL PRIMARY KEY,
+	"id" BIGSERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
 	"lastName" VARCHAR NOT NULL,
 	phone BIGINT UNIQUE NOT NULL,
 	email VARCHAR UNIQUE NOT NULL,
 	password VARCHAR NOT NULL,
-	cpf BIGINT NOT NULL,
-	cnpj BIGINT NOT NULL,
+	cpf VARCHAR,
+	cnpj VARCHAR,
 	"birthDate" DATE NOT NULL,
 	sex CHAR NOT NULL,
 	street VARCHAR NOT NULL,
@@ -66,8 +66,10 @@ CREATE TABLE client.user(
 	"deletedDt" TIMESTAMP,
 	"idRole" INT NOT NULL,
 	"idCompany" INT NOT NULL,
+	"firstAccess" BOOLEAN DEFAULT TRUE NOT NULL,
 	UNIQUE(cpf, "idCompany"),
 	UNIQUE(cnpj, "idCompany"),
+	CHECK (cpf IS NOT NULL OR cnpj IS NOT NULL),
 	FOREIGN KEY("idCity") REFERENCES info.city("idCity"),
 	FOREIGN KEY("createdBy") REFERENCES client.user("idUser"),
 	FOREIGN KEY("updatedBy") REFERENCES client.user("idUser"),
