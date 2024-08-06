@@ -9,7 +9,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AuthLoginInputDto {
-    @Email(message = "Email inválido")
     @NotNull(message = "O campo email é obrigatório")
     @NotEmpty(message = "O campo email não pode ser vazio")
     private String email;

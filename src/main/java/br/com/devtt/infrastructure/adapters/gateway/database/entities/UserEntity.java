@@ -29,9 +29,9 @@ public class UserEntity {
 
     private String password;
 
-    private Long cpf;
+    private String cpf;
 
-    private Long cnpj;
+    private String cnpj;
 
     @Column(name = "\"birthDate\"")
     private LocalDate birthDate;
