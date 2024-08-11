@@ -4,17 +4,46 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: devTT_postgres
-    expose: [5432]
+    restart: unless-stopped
     environment:
       - POSTGRES_DB=devTT
       - POSTGRES_USER=devTT
       - POSTGRES_PASSWORD=123
     ports:
       - "5433:5432"
+    volumes:
+        - postgres_data:/var/lib/postgresql/data
     networks:
       devTT_network:
         aliases:
           - postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U devTT" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+        context: .
+        dockerfile: Dockerfile-local
+    container_name: devTT_api
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - .:/api
+      - ~/.m2:/root/.m2
+    ports:
+      - "8081:8080"
+      - "35729:35729"
+      - "5005:5005"
+    networks:
+      devTT_network:
+        aliases:
+          - api
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 networks:
   devTT_network:
