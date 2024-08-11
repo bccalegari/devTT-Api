@@ -1,4 +1,4 @@
-INSERT INTO states (name, "isoAlpha2")
+INSERT INTO info.state(name, "isoAlpha2")
     VALUES ('Rondônia', 'RO'),
        ('Acre', 'AC'),
        ('Amazonas', 'AM'),
@@ -27,7 +27,7 @@ INSERT INTO states (name, "isoAlpha2")
        ('Goiás', 'GO'),
        ('Distrito Federal', 'DF');
 
-INSERT INTO cities (name, "stateAcronym", "idState")
+INSERT INTO info.city(name, "stateAcronym", "idState")
     VALUES ('Alta Floresta D´oeste', 'RO', 1),
        ('Ariquemes', 'RO', 1),
        ('Cabixi', 'RO', 1),
@@ -5599,11 +5599,11 @@ INSERT INTO cities (name, "stateAcronym", "idState")
        ('Vila Propício', 'GO', 14),
        ('Brasília', 'DF', 14);
 
-INSERT INTO client.company (name)
-    VALUE ('devTT');
+INSERT INTO client.company(name)
+    VALUES ('devTT');
 
-INSERT INTO security.role (name)
+INSERT INTO security.role(name)
     VALUES ('Master'),
-        ('Admin')
+        ('Admin'),
         ('Manager'),
         ('User');
