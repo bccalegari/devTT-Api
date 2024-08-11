@@ -31,6 +31,12 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         var bearerToken = getBearerToken(request);
+
+        if (bearerToken.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         var subject = tokenService.extractSubject(bearerToken);
         var name = tokenService.extractName(bearerToken);
         var role = tokenService.extractRole(bearerToken);
