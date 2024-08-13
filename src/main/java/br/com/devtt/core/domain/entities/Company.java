@@ -3,9 +3,9 @@ package br.com.devtt.core.domain.entities;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
 @Builder
-public class Role {
+@Getter
+public class Company {
     private Long id;
     private String name;
 }

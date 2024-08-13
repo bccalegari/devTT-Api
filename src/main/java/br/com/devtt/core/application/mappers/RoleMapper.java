@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 @Component
-public interface RoleDomainMapper extends DomainMapper<Role, RoleEntity> {
-    RoleDomainMapper INSTANCE = Mappers.getMapper(RoleDomainMapper.class);
-    Role toDomain(RoleEntity roleEntity);
+public interface RoleMapper extends DomainMapper<Role, RoleEntity> {
+    RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
 }

@@ -12,11 +12,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "user", schema = "client")
-@EqualsAndHashCode(of = "idUser")
+@EqualsAndHashCode(of = "id")
 public class UserEntity {
     @Id
-    @Column(name = "\"idUser\"")
-    private Long idUser;
+    private Long id;
 
     private String name;
 
@@ -30,8 +29,6 @@ public class UserEntity {
     private String password;
 
     private String cpf;
-
-    private String cnpj;
 
     @Column(name = "\"birthDate\"")
     private LocalDate birthDate;
@@ -49,23 +46,24 @@ public class UserEntity {
 
     private String cep;
 
-    @Column(name = "\"idCity\"")
-    private Integer idCity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "\"idCity\"")
+    private CityEntity city;
 
     @Column(name = "\"createdBy\"")
-    private Integer createdBy;
+    private Long createdBy;
 
     @Column(name = "\"createdDt\"")
     private LocalDateTime createdDt;
 
     @Column(name = "\"updatedBy\"")
-    private Integer updatedBy;
+    private Long updatedBy;
 
     @Column(name = "\"updatedDt\"")
     private LocalDateTime updatedDt;
 
     @Column(name = "\"deletedBy\"")
-    private Integer deletedBy;
+    private Long deletedBy;
 
     @Column(name = "\"deletedDt\"")
     private LocalDateTime deletedDt;

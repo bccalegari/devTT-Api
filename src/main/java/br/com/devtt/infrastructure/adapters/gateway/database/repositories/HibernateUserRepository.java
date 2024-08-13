@@ -8,4 +8,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Qualifier("HibernateUserRepository")
-public interface HibernateUserRepository extends JpaRepository<UserEntity, Long>, UserRepository {}
+public interface HibernateUserRepository extends JpaRepository<UserEntity, Long>, UserRepository<UserEntity> {}

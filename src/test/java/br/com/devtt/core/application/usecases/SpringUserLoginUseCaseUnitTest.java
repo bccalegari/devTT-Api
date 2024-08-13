@@ -46,7 +46,7 @@ class SpringUserLoginUseCaseUnitTest {
     public void setUp() {
         useCase = new SpringUserLoginUseCase(tokenService, passwordEncoderService, userRepository);
         userEntity = UserEntity.builder()
-                .idUser(1L)
+                .id(1L)
                 .name("name")
                 .lastName("lastName")
                 .password("encodedPassword")

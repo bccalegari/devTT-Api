@@ -1,11 +1,12 @@
 package br.com.devtt.core.domain.entities;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Getter
-@Builder
-public class Role {
+public class State {
     private Long id;
     private String name;
+    private String isoAlpha2;
 }

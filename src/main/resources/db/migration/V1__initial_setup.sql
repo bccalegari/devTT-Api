@@ -36,7 +36,6 @@ CREATE TABLE client.user(
 	email VARCHAR UNIQUE NOT NULL,
 	password VARCHAR NOT NULL,
 	cpf VARCHAR,
-	cnpj VARCHAR,
 	"birthDate" DATE NOT NULL,
 	sex CHAR NOT NULL,
 	street VARCHAR NOT NULL,
