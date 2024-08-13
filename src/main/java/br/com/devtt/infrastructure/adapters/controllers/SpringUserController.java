@@ -1,5 +1,7 @@
 package br.com.devtt.infrastructure.adapters.controllers;
 
+import br.com.devtt.core.abstractions.application.usecases.CreateUserUseCase;
+import br.com.devtt.infrastructure.adapters.dto.requests.CreateUserInputDto;
 import br.com.devtt.infrastructure.adapters.dto.responses.LoggedInUserInfo;
 import br.com.devtt.infrastructure.adapters.dto.responses.OutputDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,17 +12,23 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/user")
 @Tag(name = "User", description = "Endpoints para obter informações dos usuários")
 public class SpringUserController {
+
+    @Autowired
+    @Qualifier("SpringCreateUserUseCase")
+    CreateUserUseCase<CreateUserInputDto> createUserUseCase;
 
     @GetMapping("/info")
     @SecurityRequirement(name = "bearerAuth")
@@ -51,6 +59,16 @@ public class SpringUserController {
 
         LoggedInUserInfo loggedInUserInfo = new LoggedInUserInfo(name, role);
 
+        System.out.println("fdsfds");
+
         return ResponseEntity.ok(loggedInUserInfo);
+    }
+
+    @PostMapping("/create")
+    public void postNewUser(
+            @RequestAttribute(name = "idUser") Long idLoggedUser,
+            @RequestBody @Valid CreateUserInputDto inputDto
+    ) {
+        createUserUseCase.create(inputDto, idLoggedUser);
     }
 }

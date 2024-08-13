@@ -8,8 +8,7 @@ import br.com.devtt.core.abstractions.domain.valueobjects.Token;
 import br.com.devtt.core.application.exceptions.InvalidPasswordException;
 import br.com.devtt.core.application.exceptions.UserNotFoundException;
 import br.com.devtt.core.domain.valueobjects.JwtToken;
-import br.com.devtt.infrastructure.adapters.gateway.database.entities.RoleEntity;
-import br.com.devtt.infrastructure.adapters.gateway.database.entities.UserEntity;
+import br.com.devtt.infrastructure.adapters.gateway.database.entities.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +17,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,12 +49,29 @@ class SpringUserLoginUseCaseUnitTest {
                 .id(1L)
                 .name("name")
                 .lastName("lastName")
+                .phone(123456789L)
+                .email("email")
                 .password("encodedPassword")
+                .cpf("12345678901")
+                .birthDate(LocalDate.now())
+                .sex('M')
+                .street("street")
+                .streetNumber(123)
+                .district("district")
+                .cep("12345678")
+                .city(
+                        new CityEntity(1, "city", "st",
+                                new StateEntity(1, "state", "st")
+                        )
+                )
+                .createdBy(1L)
+                .createdDt(LocalDate.now().atStartOfDay())
                 .role(
                         RoleEntity.builder()
                                 .name("role")
                                 .build()
                 )
+                .company(new CompanyEntity(1, "company", null))
                 .build();
     }
 

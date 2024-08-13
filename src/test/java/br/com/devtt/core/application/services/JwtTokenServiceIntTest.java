@@ -1,19 +1,26 @@
 package br.com.devtt.core.application.services;
 
-import br.com.devtt.core.abstractions.application.services.TokenService;
 import br.com.devtt.core.abstractions.domain.valueobjects.Token;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class JwtTokenServiceIntTest {
-    private TokenService tokenService;
+    @InjectMocks private JwtTokenService tokenService;
+    @Mock private Environment env;
     private final String EMPTY_STRING = "";
 
     @BeforeEach
     void setUp() {
-        tokenService = new JwtTokenService();
+        when(env.getProperty("JWT_SECRET")).thenReturn("secret");
     }
 
     @Test
