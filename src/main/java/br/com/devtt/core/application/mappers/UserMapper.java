@@ -6,6 +6,7 @@ import br.com.devtt.core.domain.entities.User;
 import br.com.devtt.core.domain.valueobjects.Address;
 import br.com.devtt.core.domain.valueobjects.Auditing;
 import br.com.devtt.core.domain.valueobjects.Cep;
+import br.com.devtt.core.domain.valueobjects.Cpf;
 import br.com.devtt.infrastructure.adapters.gateway.database.entities.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,10 +24,10 @@ public interface UserMapper extends DomainMapper<User, UserEntity> {
     User toDomain(UserEntity userEntity);
     UserEntity toEntity(User user);
 
-    default Sex map(Character sex) {
+    default Sex mapSex(Character sex) {
         return Sex.fromCode(sex);
     }
-    default Character map(Sex sex) {
+    default Character mapSex(Sex sex) {
         return sex.getCode();
     }
 
@@ -35,6 +36,14 @@ public interface UserMapper extends DomainMapper<User, UserEntity> {
 
     default Cep mapCep(String cep) {
         return new Cep(cep);
+    }
+
+    default Cpf mapCpf(String cpf) {
+        return new Cpf(cpf);
+    }
+
+    default String mapCpf(Cpf cpf) {
+        return cpf.getValue();
     }
 
     @Named("mapAuditing")

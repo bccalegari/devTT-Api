@@ -2,6 +2,7 @@ package br.com.devtt.core.domain.entities;
 
 import br.com.devtt.core.domain.valueobjects.Address;
 import br.com.devtt.core.domain.valueobjects.Auditing;
+import br.com.devtt.core.domain.valueobjects.Cpf;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,8 +17,7 @@ public class User {
     private Long phone;
     private String email;
     private String password;
-    private String cpf;
-    private String cnpj;
+    private Cpf cpf;
     private LocalDate birthDate;
     private Sex sex;
     private Address address;
