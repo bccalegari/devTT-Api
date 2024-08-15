@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 public class UserEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -51,6 +52,7 @@ public class UserEntity {
     private CityEntity city;
 
     @Column(name = "\"createdBy\"")
+    @Setter
     private Long createdBy;
 
     @Column(name = "\"createdDt\"")
@@ -75,4 +77,7 @@ public class UserEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "\"idCompany\"")
     private CompanyEntity company;
+
+    @Column(name = "\"firstAccess\"")
+    private Boolean firstAccess;
 }

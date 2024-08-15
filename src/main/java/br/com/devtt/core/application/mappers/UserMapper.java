@@ -1,7 +1,7 @@
 package br.com.devtt.core.application.mappers;
 
 import br.com.devtt.core.abstractions.mappers.DomainMapper;
-import br.com.devtt.core.domain.entities.Sex;
+import br.com.devtt.core.domain.valueobjects.Sex;
 import br.com.devtt.core.domain.entities.User;
 import br.com.devtt.core.domain.valueobjects.Address;
 import br.com.devtt.core.domain.valueobjects.Auditing;
@@ -22,13 +22,20 @@ public interface UserMapper extends DomainMapper<User, UserEntity> {
     @Mapping(target = "address", source = "userEntity", qualifiedByName = "mapAddress")
     @Mapping(target = "auditing", source = "userEntity", qualifiedByName = "mapAuditing")
     User toDomain(UserEntity userEntity);
+
+    @Mapping(target = "cpf", source = "cpf.value")
+    @Mapping(target = "sex", source = "sex.code")
+    @Mapping(target = "street", source = "address.street")
+    @Mapping(target = "streetNumber", source = "address.streetNumber")
+    @Mapping(target = "district", source = "address.district")
+    @Mapping(target = "complement", source = "address.complement")
+    @Mapping(target = "cep", source = "address.cep.value")
+    @Mapping(target = "city", source = "address.city")
+    @Mapping(target = "createdBy", source = "auditing.createdBy")
     UserEntity toEntity(User user);
 
     default Sex mapSex(Character sex) {
         return Sex.fromCode(sex);
-    }
-    default Character mapSex(Sex sex) {
-        return sex.getCode();
     }
 
     @Named("mapAddress")
@@ -40,10 +47,6 @@ public interface UserMapper extends DomainMapper<User, UserEntity> {
 
     default Cpf mapCpf(String cpf) {
         return new Cpf(cpf);
-    }
-
-    default String mapCpf(Cpf cpf) {
-        return cpf.getValue();
     }
 
     @Named("mapAuditing")
