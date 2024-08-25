@@ -3,11 +3,13 @@ package br.com.devtt.infrastructure.adapters.dto.requests;
 import br.com.devtt.infrastructure.configuration.spring.validators.abstractions.ListContainsValue;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
 
 @AllArgsConstructor
+@Builder
 @Getter
 public class CreateUserInputDto {
     @NotNull(message = "O campo nome é obrigatório")

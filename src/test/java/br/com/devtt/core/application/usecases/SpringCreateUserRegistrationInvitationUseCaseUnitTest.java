@@ -26,7 +26,7 @@ public class SpringCreateUserRegistrationInvitationUseCaseUnitTest {
     private UserRegistrationInvitationEntity userRegistrationInvitationEntity;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         userRegistrationInvitationEntity = UserRegistrationInvitationEntity.builder()
                 .id(1L)
                 .user(
@@ -43,7 +43,7 @@ public class SpringCreateUserRegistrationInvitationUseCaseUnitTest {
     }
 
     @Test
-    public void shouldCreateUserRegistrationInvitation() {
+    void shouldCreateUserRegistrationInvitation() {
         var idUser = 1L;
         var email = "email";
         var createdBy = 1L;
@@ -71,7 +71,7 @@ public class SpringCreateUserRegistrationInvitationUseCaseUnitTest {
     }
 
     @Test
-    public void shouldDisableUserRegistrationInvitation() {
+    void shouldDisableUserRegistrationInvitation() {
         var idUser = 1L;
         var email = "email";
         var createdBy = 1L;

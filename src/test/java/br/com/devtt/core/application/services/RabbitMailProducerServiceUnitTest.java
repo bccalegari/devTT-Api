@@ -22,7 +22,7 @@ public class RabbitMailProducerServiceUnitTest {
     private MailProducerDto mailProducerDto;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         userInvitationEmailPayload = UserInvitationEmailPayload.builder()
                 .fullName("Full name")
                 .email("email@email.com")
@@ -34,7 +34,7 @@ public class RabbitMailProducerServiceUnitTest {
     }
 
     @Test
-    public void shouldProduceMail() {
+    void shouldProduceMail() {
         doNothing()
                 .when(mailGateway)
                 .send(mailProducerDto);
@@ -43,7 +43,7 @@ public class RabbitMailProducerServiceUnitTest {
     }
 
     @Test
-    public void shouldThrowRuntimeExceptionWhenErrorParsingPayload() {
+    void shouldThrowRuntimeExceptionWhenErrorParsingPayload() {
         var invalidPayload = UserInvitationEmailPayload.builder()
                 .fullName("Full name")
                 .email("email")

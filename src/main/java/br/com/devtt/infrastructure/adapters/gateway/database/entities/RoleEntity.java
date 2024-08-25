@@ -14,7 +14,7 @@ import lombok.*;
 @EqualsAndHashCode(of = "id")
 public class RoleEntity {
     @Id
-    private Integer id;
+    private Long id;
 
     private String name;
 }

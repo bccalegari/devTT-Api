@@ -14,7 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 public class CompanyEntity {
     @Id
-    private Integer id;
+    private Long id;
 
     private String name;
 

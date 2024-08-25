@@ -11,7 +11,7 @@ import lombok.*;
 @Table(name = "city", schema = "info")
 @EqualsAndHashCode(of = "id")
 public class CityEntity {
-    @Id private Integer id;
+    @Id private Long id;
     private String name;
     @Column(name = "\"stateAcronym\"") private String stateAcronym;
     @ManyToOne(fetch = FetchType.LAZY)
