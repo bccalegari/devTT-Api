@@ -23,6 +23,31 @@ services:
       timeout: 5s
       retries: 5
 
+  rabbitmq:
+    build:
+      context: ./rabbit
+    container_name: devTT_rabbitmq
+    restart: unless-stopped
+    environment:
+        - RABBITMQ_DEFAULT_USER=devTT
+        - RABBITMQ_DEFAULT_PASS=123
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - ./rabbit/rabbit-definitions.json:/etc/rabbitmq/definitions.template.json
+      - ./rabbit/init.sh:/usr/local/bin/setup_rabbitmq.sh
+    entrypoint: [ "/bin/bash", "/usr/local/bin/setup_rabbitmq.sh" ]
+    networks:
+        devTT_network:
+            aliases:
+            - rabbitmq
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmqctl node_health_check" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
         context: .
@@ -43,6 +68,8 @@ services:
           - api
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
 networks:
