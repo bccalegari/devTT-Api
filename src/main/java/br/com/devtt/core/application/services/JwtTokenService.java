@@ -7,8 +7,8 @@ import br.com.devtt.core.domain.valueobjects.JwtToken;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -17,11 +17,12 @@ import java.time.Instant;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 @Qualifier("JwtTokenService")
 public class JwtTokenService implements TokenService {
     private static final Long EXPIRATION_TIME = 86400000L; // 1 day in milliseconds
     private static final String EMPTY_STRING = "";
-    @Autowired private Environment env;
+    private final Environment env;
 
     @Override
     public Token create(Long idUser, String name, String role) {

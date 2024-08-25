@@ -3,6 +3,7 @@ package br.com.devtt.core.application.services;
 import br.com.devtt.core.abstractions.application.services.PasswordEncoderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,7 +14,7 @@ class SpringBCryptPasswordEncoderServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        service = new SpringBCryptPasswordEncoderService();
+        service = new SpringBCryptPasswordEncoderService(new BCryptPasswordEncoder());
         password = "password";
     }
 

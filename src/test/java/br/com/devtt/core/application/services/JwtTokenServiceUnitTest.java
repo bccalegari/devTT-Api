@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class JwtTokenServiceIntTest {
+class JwtTokenServiceUnitTest {
     @InjectMocks private JwtTokenService tokenService;
     @Mock private Environment env;
     private final String EMPTY_STRING = "";
