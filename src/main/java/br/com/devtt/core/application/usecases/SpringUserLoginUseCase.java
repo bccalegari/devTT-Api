@@ -1,10 +1,10 @@
 package br.com.devtt.core.application.usecases;
 
-import br.com.devtt.core.abstractions.adapters.gateway.database.repositories.UserRepository;
 import br.com.devtt.core.abstractions.application.services.PasswordEncoderService;
 import br.com.devtt.core.abstractions.application.services.TokenService;
 import br.com.devtt.core.abstractions.application.usecases.UserLoginUseCase;
 import br.com.devtt.core.abstractions.domain.valueobjects.Token;
+import br.com.devtt.core.abstractions.infrastructure.adapters.gateway.database.repositories.UserRepository;
 import br.com.devtt.core.abstractions.mappers.DomainMapper;
 import br.com.devtt.core.application.exceptions.InvalidPasswordException;
 import br.com.devtt.core.application.exceptions.UserNotFoundException;
@@ -20,19 +20,22 @@ import org.springframework.stereotype.Service;
 @Service
 @Qualifier("SpringUserLoginUseCase")
 public class SpringUserLoginUseCase implements UserLoginUseCase {
-    private TokenService tokenService;
-    private PasswordEncoderService passwordEncoderService;
-    private UserRepository<UserEntity> repository;
-    private DomainMapper<User, UserEntity> mapper;
+    private final TokenService tokenService;
+    private final PasswordEncoderService passwordEncoderService;
+    private final UserRepository<UserEntity> repository;
+    private final DomainMapper<User, UserEntity> mapper;
 
     @Autowired
-    public SpringUserLoginUseCase(@Qualifier("JwtTokenService") TokenService tokenService,
-                                  @Qualifier("SpringBCryptPasswordEncoderService") PasswordEncoderService passwordEncoderService,
-                                  @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository) {
+    public SpringUserLoginUseCase(
+            @Qualifier("JwtTokenService") TokenService tokenService,
+            @Qualifier("SpringBCryptPasswordEncoderService") PasswordEncoderService passwordEncoderService,
+            @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
+            UserMapper userMapper
+    ) {
         this.tokenService = tokenService;
         this.passwordEncoderService = passwordEncoderService;
         repository = userRepository;
-        mapper = UserMapper.INSTANCE;
+        mapper = userMapper;
     }
 
     @Override

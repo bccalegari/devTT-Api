@@ -7,14 +7,11 @@ import br.com.devtt.infrastructure.adapters.gateway.database.entities.UserRegist
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 @Component
 public interface UserRegistrationInvitationMapper extends DomainMapper<RegistrationInvitation, UserRegistrationInvitationEntity> {
-    UserRegistrationInvitationMapper INSTANCE = Mappers.getMapper(UserRegistrationInvitationMapper.class);
-
     @Mapping(target = "user", source = "registrationInvitation", qualifiedByName = "mapUserEntity")
     UserRegistrationInvitationEntity toEntity(RegistrationInvitation registrationInvitation);
 

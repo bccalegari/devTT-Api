@@ -10,14 +10,11 @@ import br.com.devtt.infrastructure.adapters.dto.requests.CreateUserInputDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 @Component
 public interface CreateUserInputDtoMapper extends AdapterMapper<User, CreateUserInputDto> {
-    CreateUserInputDtoMapper INSTANCE = Mappers.getMapper(CreateUserInputDtoMapper.class);
-
     default Sex mapSex(String sex) {
         return Sex.fromCode(sex);
     }

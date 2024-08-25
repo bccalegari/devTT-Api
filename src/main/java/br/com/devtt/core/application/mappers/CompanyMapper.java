@@ -4,11 +4,8 @@ import br.com.devtt.core.abstractions.mappers.DomainMapper;
 import br.com.devtt.core.domain.entities.Company;
 import br.com.devtt.infrastructure.adapters.gateway.database.entities.CompanyEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 @Component
-public interface CompanyMapper extends DomainMapper<Company, CompanyEntity> {
-    CompanyMapper INSTANCE = Mappers.getMapper(CompanyMapper.class);
-}
+public interface CompanyMapper extends DomainMapper<Company, CompanyEntity> {}
