@@ -1,6 +1,7 @@
 package br.com.devtt.infrastructure.adapters.gateway.database.repositories;
 
-import br.com.devtt.core.abstractions.adapters.gateway.database.repositories.UserRepository;
+
+import br.com.devtt.core.abstractions.infrastructure.adapters.gateway.database.repositories.UserRepository;
 import br.com.devtt.infrastructure.adapters.gateway.database.entities.UserEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
