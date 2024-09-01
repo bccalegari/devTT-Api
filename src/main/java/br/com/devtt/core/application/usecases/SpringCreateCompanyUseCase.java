@@ -6,6 +6,7 @@ import br.com.devtt.core.abstractions.mappers.DomainMapper;
 import br.com.devtt.core.application.exceptions.CompanyAlreadyExistsException;
 import br.com.devtt.core.application.mappers.CompanyMapper;
 import br.com.devtt.core.domain.entities.Company;
+import br.com.devtt.core.domain.valueobjects.Auditing;
 import br.com.devtt.core.domain.valueobjects.Cnpj;
 import br.com.devtt.infrastructure.adapters.gateway.database.entities.CompanyEntity;
 import jakarta.transaction.Transactional;
@@ -30,10 +31,11 @@ public class SpringCreateCompanyUseCase implements CreateCompanyUseCase {
 
     @Override
     @Transactional
-    public void create(String name, String cnpj) {
+    public void create(String name, String cnpj, Long idLoggedUser) {
         var companyDomain = Company.builder()
                 .name(name)
                 .cnpj(new Cnpj(cnpj))
+                .auditing(Auditing.builder().createdBy(idLoggedUser).build())
                 .build();
 
         boolean companyExists = companyRepository.findByCnpj(cnpj).isPresent();

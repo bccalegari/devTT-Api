@@ -1,13 +1,13 @@
-INSERT INTO client.company(name, cnpj)
-    VALUES ('devTT', '11111111111111');
+SET session_replication_role = replica;
+
+INSERT INTO client.company(name, cnpj, "createdBy")
+    VALUES ('devTT', '11111111111111', 1);
 
 INSERT INTO security.role(name)
     VALUES ('Master'),
         ('Admin'),
         ('Manager'),
         ('User');
-
-SET session_replication_role = replica;
 
 -- Password: 123456
 INSERT INTO client.user(name, "lastName", phone, email, password, cpf, "birthDate", sex, street, "streetNumber",
