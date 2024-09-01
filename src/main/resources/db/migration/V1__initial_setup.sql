@@ -27,6 +27,12 @@ CREATE TABLE client.company(
 	"id" SERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
 	cnpj VARCHAR NOT NULL,
+    "createdBy" BIGINT NOT NULL,
+    "createdDt" TIMESTAMP DEFAULT NOW() NOT NULL,
+    "updatedBy" BIGINT,
+    "updatedDt" TIMESTAMP,
+    "deletedBy" BIGINT,
+    "deletedDt" TIMESTAMP,
 	UNIQUE(cnpj)
 );
 
@@ -63,3 +69,7 @@ CREATE TABLE client.user(
 	FOREIGN KEY("idRole") REFERENCES security.role("id"),
 	FOREIGN KEY("idCompany") REFERENCES client.company("id")
 );
+
+ALTER TABLE client.company ADD FOREIGN KEY("createdBy") REFERENCES client.user("id");
+ALTER TABLE client.company ADD FOREIGN KEY("updatedBy") REFERENCES client.user("id");
+ALTER TABLE client.company ADD FOREIGN KEY("deletedBy") REFERENCES client.user("id");
