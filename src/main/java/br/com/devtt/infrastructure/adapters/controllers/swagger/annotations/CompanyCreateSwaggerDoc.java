@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @SecurityRequirement(name = "bearerAuth")
-@Operation(summary = "Criar um novo usuário",
-        description = "Realiza a criação de um novo usuário no sistema", tags = {"User"})
+@Operation(summary = "Criar uma nova empresa",
+        description = "Realiza a criação de uma nova empresa no sistema", tags = {"Company"})
 @ApiResponses(
         value = {
                 @ApiResponse(responseCode = "201", description = "Created",
@@ -30,4 +30,4 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
                         ))
         }
 )
-public @interface UserCreateSwaggerDoc {}
+public @interface CompanyCreateSwaggerDoc {}

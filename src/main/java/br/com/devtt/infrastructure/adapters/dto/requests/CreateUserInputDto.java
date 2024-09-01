@@ -70,8 +70,8 @@ public class CreateUserInputDto {
     private final Long idCity;
 
     @NotNull(message = "O campo idRole é obrigatório")
-    private final Long idRole;
+    private final Integer idRole;
 
     @NotNull(message = "O campo idCompany é obrigatório")
-    private final Long idCompany;
+    private final Integer idCompany;
 }

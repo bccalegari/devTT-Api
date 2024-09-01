@@ -61,8 +61,8 @@ public class SpringCreateUserUseCaseUnitTest {
                 .district("district")
                 .cep("23456423")
                 .idCity(1L)
-                .idRole(1L)
-                .idCompany(1L)
+                .idRole(1)
+                .idCompany(1)
                 .build();
         idLoggedUser = 1L;
         loggedUserName = "loggedUserName";

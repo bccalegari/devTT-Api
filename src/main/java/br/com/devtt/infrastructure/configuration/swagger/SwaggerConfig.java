@@ -32,7 +32,6 @@ public class SwaggerConfig {
                         .description("API para controle de ponto")
                         .contact(new Contact()
                                 .name("DevTT")
-                                .email("brunocostacallegari@outlook.com")
                                 .url("https://github.com/bccalegari/devTT-Api"))
                         .license(new License()
                                 .name("MIT License")

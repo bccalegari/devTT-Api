@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,6 @@ public class SpringUserController {
             @RequestBody @Valid CreateUserInputDto inputDto
     ) {
         createUserUseCase.create(inputDto, idLoggedUser, loggedUserName);
-        return ResponseEntity.ok(new OutputDto("Usuário criado com sucesso!"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new OutputDto("Usuário criado com sucesso!"));
     }
 }

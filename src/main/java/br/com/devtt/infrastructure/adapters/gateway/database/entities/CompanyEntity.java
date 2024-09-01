@@ -14,9 +14,11 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 public class CompanyEntity {
     @Id
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     private String name;
+    private String cnpj;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private List<UserEntity> employees;

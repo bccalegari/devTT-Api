@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class Role {
-    private Long id;
+    private Integer id;
     private String name;
 }

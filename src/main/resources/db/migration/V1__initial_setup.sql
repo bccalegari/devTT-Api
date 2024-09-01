@@ -14,7 +14,7 @@ CREATE TABLE info.state(
 );
 
 CREATE TABLE info.city(
-	"id" SERIAL PRIMARY KEY,
+	"id" BIGSERIAL PRIMARY KEY,
 	name VARCHAR NOT NULL,
 	"stateAcronym" VARCHAR(2) NOT NULL,
 	"idState" INT NOT NULL,
@@ -25,7 +25,9 @@ CREATE SCHEMA client;
 
 CREATE TABLE client.company(
 	"id" SERIAL PRIMARY KEY,
-	name VARCHAR NOT NULL
+	name VARCHAR NOT NULL,
+	cnpj VARCHAR NOT NULL,
+	UNIQUE(cnpj)
 );
 
 CREATE TABLE client.user(
@@ -43,7 +45,7 @@ CREATE TABLE client.user(
 	district VARCHAR NOT NULL,
 	complement VARCHAR,
 	cep VARCHAR NOT NULL,
-	"idCity" INT NOT NULL,
+	"idCity" BIGINT NOT NULL,
 	"createdBy" BIGINT NOT NULL,
 	"createdDt" TIMESTAMP DEFAULT NOW() NOT NULL,
 	"updatedBy" BIGINT,

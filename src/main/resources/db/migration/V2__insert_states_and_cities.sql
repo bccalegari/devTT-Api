@@ -5598,12 +5598,3 @@ INSERT INTO info.city(name, "stateAcronym", "idState")
        ('Vila Boa', 'GO', 14),
        ('Vila Propício', 'GO', 14),
        ('Brasília', 'DF', 14);
-
-INSERT INTO client.company(name)
-    VALUES ('devTT');
-
-INSERT INTO security.role(name)
-    VALUES ('Master'),
-        ('Admin'),
-        ('Manager'),
-        ('User');
