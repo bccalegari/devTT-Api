@@ -42,8 +42,12 @@ jobs:
 
       - name: Check test coverage threshold
         run: |
+          set -e  # Stop script on error
           THRESHOLD=80
           if (( $(echo "$PERCENTAGE < $THRESHOLD" | bc -l) )); then
             echo "Test coverage is below the acceptable threshold of $THRESHOLD%."
             exit 1
           fi
+        shell: bash
+        env:
+          PERCENTAGE: ${{ steps.output_test_coverage.outputs.coverage_percentage }}
