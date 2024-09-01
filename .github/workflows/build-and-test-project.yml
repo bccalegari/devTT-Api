@@ -38,11 +38,12 @@ jobs:
           TOTAL_INSTRUCTIONS=$((COVERED_INSTRUCTIONS + MISSED_INSTRUCTIONS))
           PERCENTAGE=$(echo "scale=2; $COVERED_INSTRUCTIONS * 100 / $TOTAL_INSTRUCTIONS" | bc)
           echo "Test Coverage for Instructions: $PERCENTAGE% on $TOTAL_INSTRUCTIONS instructions"
-          echo "In package br/com/devtt/core/application/services and br/com/devtt/core/application/usecases"
+          echo "for packages br/com/devtt/core/application/services and br/com/devtt/core/application/usecases"
 
       - name: Check test coverage threshold
         run: |
-          if [ "$(echo "$PERCENTAGE < 80" | bc -l)" -eq 1 ]; then
-            echo "Test coverage is below the acceptable threshold of 80%."
+          THRESHOLD=80
+          if (( $(echo "$PERCENTAGE < $THRESHOLD" | bc -l) )); then
+            echo "Test coverage is below the acceptable threshold of $THRESHOLD%."
             exit 1
           fi
