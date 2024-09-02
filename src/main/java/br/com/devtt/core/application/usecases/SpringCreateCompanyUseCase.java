@@ -38,7 +38,7 @@ public class SpringCreateCompanyUseCase implements CreateCompanyUseCase {
                 .auditing(Auditing.builder().createdBy(idLoggedUser).build())
                 .build();
 
-        boolean companyExists = companyRepository.findByCnpj(cnpj).isPresent();
+        var companyExists = companyRepository.findByCnpj(cnpj).isPresent();
 
         if (companyExists) {
             throw new CompanyAlreadyExistsException("A empresa já existe, não é possível cadastrá-la novamente.");

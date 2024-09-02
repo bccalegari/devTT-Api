@@ -9,11 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @SecurityRequirement(name = "bearerAuth")
-@Operation(summary = "Criar uma nova empresa",
-        description = "Realiza a criação de uma nova empresa no sistema", tags = {"Company"})
+@Operation(summary = "Atualiza uma empresa no sistema",
+        description = "Realiza a atualização de uma empresa no sistema.", tags = {"Company"})
 @ApiResponses(
         value = {
-                @ApiResponse(responseCode = "201", description = "Criado",
+                @ApiResponse(responseCode = "200", description = "OK",
                         content = @Content(
                                 mediaType = "application/json",
                                 schema = @Schema(implementation = OutputDto.class)
@@ -35,4 +35,4 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
                         ))
         }
 )
-public @interface CompanyCreateSwaggerDoc {}
+public @interface CompanyUpdateSwaggerDoc {}

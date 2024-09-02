@@ -13,7 +13,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
         description = "Realiza a criação de um novo usuário no sistema", tags = {"User"})
 @ApiResponses(
         value = {
-                @ApiResponse(responseCode = "201", description = "Created",
+                @ApiResponse(responseCode = "201", description = "Criado",
+                        content = @Content(
+                                mediaType = "application/json",
+                                schema = @Schema(implementation = OutputDto.class)
+                        )),
+                @ApiResponse(responseCode = "400", description = "Requisição inválida",
                         content = @Content(
                                 mediaType = "application/json",
                                 schema = @Schema(implementation = OutputDto.class)
