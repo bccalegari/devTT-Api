@@ -19,9 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @Tag(name = "Auth", description = "Endpoint para autenticação")
 public class SpringAuthController {
+    private final UserLoginUseCase loginUseCase;
+
     @Autowired
-    @Qualifier("SpringUserLoginUseCase")
-    private UserLoginUseCase loginUseCase;
+    public SpringAuthController(
+            @Qualifier("SpringUserLoginUseCase") UserLoginUseCase loginUseCase
+    ) {
+        this.loginUseCase = loginUseCase;
+    }
 
     @PostMapping("/login")
     @AuthLoginSwaggerDoc

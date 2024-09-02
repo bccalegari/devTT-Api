@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
                                 mediaType = "application/json",
                                 schema = @Schema(implementation = AuthLoginOutputDto.class)
                         )),
-                @ApiResponse(responseCode = "400", description = "Erro na requisição",
+                @ApiResponse(responseCode = "400", description = "Requisição inválida",
                         content = @Content(
                                 mediaType = "application/json",
                                 schema = @Schema(implementation = OutputDto.class)
