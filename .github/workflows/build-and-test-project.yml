@@ -31,11 +31,17 @@ jobs:
       - name: Build and Test with Maven
         run: mvn -B clean verify
 
-      - name: Output test coverage
+      - name: Check Test Coverage
         run: |
           COVERED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[contains(@name, 'br/com/devtt/core/application/services') or contains(@name, 'br/com/devtt/core/application/usecases')]/counter[@type='INSTRUCTION']/@covered)" target/site/jacoco/jacoco.xml)
           MISSED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[contains(@name, 'br/com/devtt/core/application/services') or contains(@name, 'br/com/devtt/core/application/usecases')]/counter[@type='INSTRUCTION']/@missed)" target/site/jacoco/jacoco.xml)
           TOTAL_INSTRUCTIONS=$((COVERED_INSTRUCTIONS + MISSED_INSTRUCTIONS))
           PERCENTAGE=$(echo "scale=2; $COVERED_INSTRUCTIONS * 100 / $TOTAL_INSTRUCTIONS" | bc)
-          echo "Test Coverage for Instructions: $PERCENTAGE% on $TOTAL_INSTRUCTIONS instructions"
-          echo "for packages br/com/devtt/core/application/services and br/com/devtt/core/application/usecases"
+          echo "$PERCENTAGE% Test Coverage $TOTAL_INSTRUCTIONS instructions"
+          echo "Packages br/com/devtt/core/application/services and br/com/devtt/core/application/usecases"
+          if (( $(echo "$PERCENTAGE < 80" | bc -l) )); then
+            echo "Error: Test coverage is below 80%."
+            exit 1
+          else
+            echo "Success: Test coverage is over 80%."
+          fi
