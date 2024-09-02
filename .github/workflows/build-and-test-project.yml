@@ -38,7 +38,7 @@ jobs:
           TOTAL_INSTRUCTIONS=$((COVERED_INSTRUCTIONS + MISSED_INSTRUCTIONS))
           PERCENTAGE=$(echo "scale=2; $COVERED_INSTRUCTIONS * 100 / $TOTAL_INSTRUCTIONS" | bc)
           echo "$PERCENTAGE% Test Coverage $TOTAL_INSTRUCTIONS instructions"
-          echo "Packages br/com/devtt/core/application/services and br/com/devtt/core/application/usecases"
+          echo "Packages: br/com/devtt/core/application/services and br/com/devtt/core/application/usecases"
           if (( $(echo "$PERCENTAGE < 80" | bc -l) )); then
             echo "Error: Test coverage is below 80%."
             exit 1
