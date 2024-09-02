@@ -36,6 +36,8 @@ public class SpringAuthController {
         var outputDto = new AuthLoginOutputDto("Login realizado com sucesso!",
                 token.getValue());
 
+        int i = 2 + 2;
+
         return ResponseEntity.ok(outputDto);
     }
 }
