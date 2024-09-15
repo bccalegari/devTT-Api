@@ -33,8 +33,8 @@ jobs:
 
       - name: Check Test Coverage
         run: |
-          COVERED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[contains(@name, 'br/com/devtt/core/application/services') or contains(@name, 'br/com/devtt/core/application/usecases')]/counter[@type='INSTRUCTION']/@covered)" target/site/jacoco/jacoco.xml)
-          MISSED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[contains(@name, 'br/com/devtt/core/application/services') or contains(@name, 'br/com/devtt/core/application/usecases')]/counter[@type='INSTRUCTION']/@missed)" target/site/jacoco/jacoco.xml)
+          COVERED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[matches(@name, 'br/com/devtt/.*/application/(services|usecases|factories|strategies)')]/counter[@type='INSTRUCTION']/@covered)" target/site/jacoco/jacoco.xml)
+          MISSED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[matches(@name, 'br/com/devtt/.*/application/(services|usecases|factories|strategies)')]/counter[@type='INSTRUCTION']/@missed)" target/site/jacoco/jacoco.xml)
           TOTAL_INSTRUCTIONS=$((COVERED_INSTRUCTIONS + MISSED_INSTRUCTIONS))
           PERCENTAGE=$(echo "scale=2; $COVERED_INSTRUCTIONS * 100 / $TOTAL_INSTRUCTIONS" | bc)
           echo "$PERCENTAGE% Test Coverage $TOTAL_INSTRUCTIONS instructions"
