@@ -33,15 +33,15 @@ jobs:
 
       - name: Check Test Coverage
         run: |
-          COVERED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[matches(@name, 'br/com/devtt/.*/application/(services|usecases|factories|strategies)')]/counter[@type='INSTRUCTION']/@covered)" target/site/jacoco/jacoco.xml)
-          MISSED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[matches(@name, 'br/com/devtt/.*/application/(services|usecases|factories|strategies)')]/counter[@type='INSTRUCTION']/@missed)" target/site/jacoco/jacoco.xml)
-          TOTAL_INSTRUCTIONS=$((COVERED_INSTRUCTIONS + MISSED_INSTRUCTIONS))
+          COVERED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[contains(@name, 'br/com/devtt/') and contains(@name, '/application/') and (contains(@name, 'services') or contains(@name, 'usecases') or contains(@name, 'factories') or contains(@name, 'strategies'))]/counter[@type='INSTRUCTION']/@covered)" target/site/jacoco/jacoco.xml)
+          MISSED_INSTRUCTIONS=$(xmllint --xpath "sum(//package[contains(@name, 'br/com/devtt/') and contains(@name, '/application/') and (contains(@name, 'services') or contains(@name, 'usecases') or contains(@name, 'factories') or contains(@name, 'strategies'))]/counter[@type='INSTRUCTION']/@missed)" target/site/jacoco/jacoco.xml)
+          TOTAL_INSTRUCTIONS=$(echo "$COVERED_INSTRUCTIONS + $MISSED_INSTRUCTIONS" | bc)
           PERCENTAGE=$(echo "scale=2; $COVERED_INSTRUCTIONS * 100 / $TOTAL_INSTRUCTIONS" | bc)
-          echo "$PERCENTAGE% Test Coverage $TOTAL_INSTRUCTIONS instructions"
-          echo "Packages: br/com/devtt/core/application/services and br/com/devtt/core/application/usecases"
+          echo "$PERCENTAGE% de Cobertura de Teste em $TOTAL_INSTRUCTIONS instruções"
+          echo "Pacotes: br/com/devtt/core/application/services e br/com/devtt/core/application/usecases"
           if (( $(echo "$PERCENTAGE < 80" | bc -l) )); then
-            echo "Error: Test coverage is below 80%."
+            echo "Erro: A cobertura de testes está abaixo de 80%."
             exit 1
           else
-            echo "Success: Test coverage is over 80%."
+            echo "Sucesso: A cobertura de testes está acima de 80%."
           fi
