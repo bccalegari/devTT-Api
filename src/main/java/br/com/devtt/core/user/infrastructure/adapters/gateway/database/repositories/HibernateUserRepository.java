@@ -16,6 +16,11 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
     @PersistenceContext private EntityManager entityManager;
 
     @Override
+    public Optional<UserEntity> findById(Long id) {
+        return Optional.ofNullable(entityManager.find(UserEntity.class, id));
+    }
+
+    @Override
     public Optional<UserEntity> findByEmail(String email) {
         return entityManager.createQuery("""
                         SELECT

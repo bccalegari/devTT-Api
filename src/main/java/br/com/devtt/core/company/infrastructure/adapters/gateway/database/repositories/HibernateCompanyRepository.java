@@ -61,15 +61,15 @@ public class HibernateCompanyRepository implements CompanyRepository<CompanyEnti
         var query = """
                 SELECT c
                 FROM CompanyEntity c
-                WHERE (c.name LIKE :name OR c.cnpj LIKE :cnpj)
+                WHERE (LOWER(c.name) LIKE ('%' || LOWER(:name) || '%') OR LOWER(c.cnpj) LIKE ('%' || LOWER(:cnpj) || '%'))
                 AND c.deletedDt IS NULL
                 """;
 
         var companies = entityManager.createQuery(query, CompanyEntity.class)
                 .setFirstResult(paginationParams.getPage())
                 .setMaxResults(paginationParams.getSize())
-                .setParameter("name", "%" + name + "%")
-                .setParameter("cnpj", "%" + cnpj + "%")
+                .setParameter("name", name)
+                .setParameter("cnpj", cnpj)
                 .getResultList();
 
         var totalElements = entityManager.createQuery("SELECT COUNT(c) FROM CompanyEntity c WHERE c.deletedDt IS NULL",

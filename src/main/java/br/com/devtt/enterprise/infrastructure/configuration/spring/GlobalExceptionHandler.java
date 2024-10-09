@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<OutputDto> handleAccessDeniedException(AccessDeniedException exception) {
         log.error(exception.getMessage(), exception);
-        var outputDto = new OutputDto("Você não tem permissão para acessar este recurso!");
+        var outputDto = new OutputDto("Você não tem permissão para realizar essa ação!");
         return ResponseEntity.status(403).body(outputDto);
     }
 
