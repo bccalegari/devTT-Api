@@ -1,6 +1,7 @@
 package br.com.devtt.core.user.infrastructure.adapters.controllers;
 
 import br.com.devtt.core.user.abstractions.application.usecases.CreateUserUseCase;
+import br.com.devtt.core.user.abstractions.application.usecases.DeleteUserUseCase;
 import br.com.devtt.core.user.infrastructure.adapters.dto.requests.CreateUserInputDto;
 import br.com.devtt.enterprise.infrastructure.adapters.dto.responses.OutputDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,11 +23,14 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "User", description = "Endpoints para gerenciamento de usuários")
 public class SpringUserController {
     private final CreateUserUseCase<CreateUserInputDto> createUserUseCase;
+    private final DeleteUserUseCase<Long> deleteUserUseCase;
 
     public SpringUserController(
-            @Qualifier("SpringCreateUserUseCase") CreateUserUseCase<CreateUserInputDto> createUserUseCase
+            @Qualifier("SpringCreateUserUseCase") CreateUserUseCase<CreateUserInputDto> createUserUseCase,
+            @Qualifier("SpringDeleteUserUseCase") DeleteUserUseCase<Long> deleteUserUseCase
     ) {
         this.createUserUseCase = createUserUseCase;
+        this.deleteUserUseCase = deleteUserUseCase;
     }
 
     @PostMapping
@@ -63,5 +67,40 @@ public class SpringUserController {
     ) {
         createUserUseCase.execute(inputDto, idLoggedUser, loggedUserName);
         return ResponseEntity.status(HttpStatus.CREATED).body(new OutputDto("Usuário criado com sucesso!"));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Deletar um usuário",
+            description = "Realiza a deleção de um usuário no sistema", tags = {"User"})
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Deletado",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = OutputDto.class)
+                            )),
+                    @ApiResponse(responseCode = "400", description = "Requisição inválida",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = OutputDto.class)
+                            )),
+                    @ApiResponse(responseCode = "401", description = "Não autorizado",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = OutputDto.class)
+                            )),
+                    @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = OutputDto.class)
+                            ))
+            }
+    )
+    public ResponseEntity<OutputDto> delete(
+            @RequestAttribute(name = "idUser") Long idLoggedUser,
+            @PathVariable Long id
+    ) {
+        deleteUserUseCase.execute(id, idLoggedUser);
+        return ResponseEntity.ok(new OutputDto("Usuário deletado com sucesso!"));
     }
 }

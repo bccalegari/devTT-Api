@@ -56,10 +56,8 @@ public class SpringCreateUserUseCase implements CreateUserUseCase<CreateUserInpu
         );
 
         if (userEntityOnDatabase.isPresent()) {
-            throw new UserAlreadyExistsException("""
-                    Já existe um usuário com o mesmo CPF, telefone ou e-mail cadastrado no sistema. 
-                    Verifique os dados e tente novamente.
-                    """);
+            throw new UserAlreadyExistsException(" Já existe um usuário com o mesmo CPF, telefone " +
+                    "ou e-mail cadastrado no sistema. Verifique os dados e tente novamente.");
         }
 
         var user = adapterMapper.toDomain(input);

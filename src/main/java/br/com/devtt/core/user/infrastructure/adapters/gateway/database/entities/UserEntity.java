@@ -68,6 +68,7 @@ public class UserEntity {
     private LocalDateTime updatedDt;
 
     @Column(name = "\"deletedBy\"")
+    @Setter
     private Long deletedBy;
 
     @Column(name = "\"deletedDt\"")

@@ -23,10 +23,12 @@ public class CreateUserInputDto {
     @NotNull(message = "O campo telefone é obrigatório")
     @NotEmpty(message = "O campo telefone não pode ser vazio")
     @Size(min = 10, max = 11, message = "O campo telefone deve ter entre 10 e 11 caracteres")
+    @Pattern(regexp = "^[0-9]*$", message = "O campo telefone deve conter apenas números")
     private final String phone;
 
     @NotNull(message = "O campo email é obrigatório")
     @NotEmpty(message = "O campo email não pode ser vazio")
+    @Email(message = "O campo email deve ser um e-mail válido")
     private final String email;
 
     @NotNull(message = "O campo senha é obrigatório")
@@ -37,6 +39,7 @@ public class CreateUserInputDto {
     @NotNull(message = "O campo CPF é obrigatório")
     @NotEmpty(message = "O campo CPF não pode ser vazio")
     @Size(min = 11, max = 11, message = "O campo CPF deve ter 11 caracteres")
+    @Pattern(regexp = "^[0-9]*$", message = "O campo CPF deve conter apenas números")
     private final String cpf;
 
     @NotNull(message = "O campo data de nascimento é obrigatório")
@@ -64,14 +67,18 @@ public class CreateUserInputDto {
     @NotNull(message = "O campo CEP é obrigatório")
     @NotEmpty(message = "O campo CEP não pode ser vazio")
     @Size(min = 8, max = 8, message = "O campo CEP deve ter 8 caracteres")
+    @Pattern(regexp = "^[0-9]*$", message = "O campo CEP deve conter apenas números")
     private final String cep;
 
     @NotNull(message = "O campo idCity é obrigatório")
+    @Min(value = 1, message = "O campo idCity deve ser maior que 0")
     private final Long idCity;
 
     @NotNull(message = "O campo idRole é obrigatório")
+    @Min(value = 1, message = "O campo idRole deve ser maior que 0")
     private final Integer idRole;
 
     @NotNull(message = "O campo idCompany é obrigatório")
+    @Min(value = 1, message = "O campo idCompany deve ser maior que 0")
     private final Integer idCompany;
 }

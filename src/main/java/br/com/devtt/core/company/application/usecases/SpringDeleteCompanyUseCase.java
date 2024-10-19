@@ -33,10 +33,6 @@ public class SpringDeleteCompanyUseCase implements DeleteCompanyUseCase {
     @Override
     @Transactional
     public void execute(Integer id, Long idLoggedUser) {
-        if (id == 1) {
-            throw new DeleteStandardCompanyException("Você não tem permissão para deletar essa empresa.");
-        }
-
         var companyEntity = companyRepository.findById(id)
                 .orElseThrow(() -> new CompanyNotFoundException("A empresa não foi encontrada."));
 
@@ -47,6 +43,10 @@ public class SpringDeleteCompanyUseCase implements DeleteCompanyUseCase {
 
         if (companyEntity.getId().equals(loggedUserCompanyId)) {
             throw new DeleteOwnCompanyException("Não é possível deletar sua própria empresa.");
+        }
+
+        if (companyEntity.getId().equals(1)) {
+            throw new DeleteStandardCompanyException("Você não tem permissão para deletar esta empresa.");
         }
 
         companyEntity.setUpdatedBy(idLoggedUser);

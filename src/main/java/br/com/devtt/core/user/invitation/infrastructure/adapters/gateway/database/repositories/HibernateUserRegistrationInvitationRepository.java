@@ -50,6 +50,22 @@ public class HibernateUserRegistrationInvitationRepository
     }
 
     @Override
+    public void disableAllRegistrationInvitationsByUserId(Long userId, Long idLoggedUser) {
+        entityManager.createQuery("""
+                UPDATE
+                    UserRegistrationInvitationEntity eri
+                SET
+                    eri.deletedDt = CURRENT_TIMESTAMP,
+                    eri.deletedBy = :idLoggedUser
+                WHERE
+                    eri.user.id = :userId
+                """)
+                .setParameter("userId", userId)
+                .setParameter("idLoggedUser", idLoggedUser)
+                .executeUpdate();
+    }
+
+    @Override
     public UserRegistrationInvitationEntity save(UserRegistrationInvitationEntity entity) {
         var insertQuery = """
                 INSERT INTO

@@ -17,8 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SpringDeleteCompanyUseCaseUnitTest {
@@ -39,6 +38,8 @@ public class SpringDeleteCompanyUseCaseUnitTest {
 
         springDeleteCompanyUseCase.execute(companyId, loggedUserId);
 
+        verify(companyRepository).findById(companyId);
+        verify(userRepository).findById(loggedUserId);
         verify(companyRepository).delete(companyEntity);
     }
 
@@ -50,6 +51,8 @@ public class SpringDeleteCompanyUseCaseUnitTest {
         when(companyRepository.findById(2)).thenReturn(Optional.empty());
 
         assertThrows(CompanyNotFoundException.class, () -> springDeleteCompanyUseCase.execute(companyId, loggedUserId));
+        verify(companyRepository).findById(companyId);
+        verifyNoInteractions(userRepository);
     }
 
     @Test
@@ -64,6 +67,8 @@ public class SpringDeleteCompanyUseCaseUnitTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
 
         assertThrows(DeleteOwnCompanyException.class, () -> springDeleteCompanyUseCase.execute(companyId, loggedUserId));
+        verify(companyRepository).findById(companyId);
+        verify(userRepository).findById(loggedUserId);
     }
 
     @Test
@@ -71,7 +76,15 @@ public class SpringDeleteCompanyUseCaseUnitTest {
         var companyId = 1;
         var loggedUserId = 1L;
 
+        var companyEntity = CompanyEntity.builder().id(2).build();
+        var userEntity = UserEntity.builder().id(loggedUserId).company(companyEntity).build();
+
+        when(companyRepository.findById(companyId)).thenReturn(Optional.of(CompanyEntity.builder().id(1).build()));
+        when(userRepository.findById(loggedUserId)).thenReturn(Optional.of(userEntity));
+
         assertThrows(DeleteStandardCompanyException.class, () -> springDeleteCompanyUseCase.execute(companyId, loggedUserId));
+        verify(companyRepository).findById(companyId);
+        verify(userRepository).findById(loggedUserId);
     }
 
     @Test
@@ -85,5 +98,7 @@ public class SpringDeleteCompanyUseCaseUnitTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(CoreException.class, () -> springDeleteCompanyUseCase.execute(companyId, loggedUserId));
+        verify(companyRepository).findById(companyId);
+        verify(userRepository).findById(loggedUserId);
     }
 }
