@@ -17,7 +17,18 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
 
     @Override
     public Optional<UserEntity> findById(Long id) {
-        return Optional.ofNullable(entityManager.find(UserEntity.class, id));
+        return entityManager.createQuery("""
+                        SELECT
+                            u
+                        FROM
+                            UserEntity u
+                        WHERE
+                            u.id = :id
+                            AND u.deletedDt IS NULL
+                        """, UserEntity.class)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst();
     }
 
     @Override
@@ -88,5 +99,21 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
 
         entityManager.flush();
         return entityManager.find(UserEntity.class, idNewUser);
+    }
+
+    @Override
+    public void delete(UserEntity entity) {
+        entityManager.createQuery("""
+                UPDATE
+                    UserEntity u
+                SET
+                    u.deletedBy = :deletedBy,
+                    u.deletedDt = current_timestamp
+                WHERE
+                    u.id = :id
+                """)
+                .setParameter("id", entity.getId())
+                .setParameter("deletedBy", entity.getDeletedBy())
+                .executeUpdate();
     }
 }
