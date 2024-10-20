@@ -1,11 +1,11 @@
 package br.com.devtt.core.user.domain.entities;
 
 import br.com.devtt.core.company.domain.entities.Company;
+import br.com.devtt.core.user.domain.valueobjects.Cpf;
+import br.com.devtt.core.user.domain.valueobjects.Sex;
 import br.com.devtt.enterprise.domain.entities.Role;
 import br.com.devtt.enterprise.domain.valueobjects.Address;
 import br.com.devtt.enterprise.domain.valueobjects.Auditing;
-import br.com.devtt.core.user.domain.valueobjects.Cpf;
-import br.com.devtt.core.user.domain.valueobjects.Sex;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +29,7 @@ public class User {
     private Auditing auditing;
     private Company company;
     private Role role;
+    private boolean firstAccess;
 
     public String getFullName() {
         return name + " " + lastName;

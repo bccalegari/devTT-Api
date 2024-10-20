@@ -7,7 +7,7 @@ import br.com.devtt.core.company.domain.entities.Company;
 import br.com.devtt.core.company.domain.valueobjects.Cnpj;
 import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetCompanyOutputDto;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
-import br.com.devtt.core.company.infrastructure.adapters.mappers.GetCompanyResponseDtoMapper;
+import br.com.devtt.core.company.infrastructure.adapters.mappers.GetCompanyOutputDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ public class SpringGetCompanyUseCaseUnitTest {
     @InjectMocks private SpringGetCompanyUseCase springGetCompanyUseCase;
     @Mock private CompanyRepository<CompanyEntity> companyRepository;
     @Mock private CompanyMapper companyMapper;
-    @Mock private GetCompanyResponseDtoMapper responseMapper;
+    @Mock private GetCompanyOutputDtoMapper responseMapper;
 
     private CompanyEntity companyEntity;
     private Company company;

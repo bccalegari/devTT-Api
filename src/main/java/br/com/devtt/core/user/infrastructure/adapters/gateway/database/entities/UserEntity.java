@@ -62,6 +62,7 @@ public class UserEntity {
     private LocalDateTime createdDt;
 
     @Column(name = "\"updatedBy\"")
+    @Setter
     private Long updatedBy;
 
     @Column(name = "\"updatedDt\"")
@@ -83,5 +84,5 @@ public class UserEntity {
     private CompanyEntity company;
 
     @Column(name = "\"firstAccess\"")
-    private Boolean firstAccess;
+    private boolean firstAccess;
 }

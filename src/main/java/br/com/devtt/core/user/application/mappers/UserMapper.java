@@ -42,6 +42,7 @@ public interface UserMapper extends DomainMapper<User, UserEntity> {
     Address mapAddress(UserEntity userEntity);
 
     @Named("mapCompany")
+    @Mapping(target = "cnpj", source = "company.cnpj")
     Company mapCompany(UserEntity userEntity);
 
     default Cep mapCep(String cep) {
