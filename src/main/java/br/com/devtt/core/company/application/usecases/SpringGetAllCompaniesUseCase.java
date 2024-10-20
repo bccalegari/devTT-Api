@@ -11,7 +11,7 @@ import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetAllCom
 import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetCompanyOutputDto;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PaginationParams;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
-import br.com.devtt.core.company.infrastructure.adapters.mappers.GetCompanyResponseDtoMapper;
+import br.com.devtt.core.company.infrastructure.adapters.mappers.GetCompanyOutputDtoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class SpringGetAllCompaniesUseCase implements GetAllCompaniesUseCase<GetA
     public SpringGetAllCompaniesUseCase(
             @Qualifier("HibernateCompanyRepository") CompanyRepository<CompanyEntity> companyRepository,
             CompanyMapper companyMapper,
-            GetCompanyResponseDtoMapper responseMapper
+            GetCompanyOutputDtoMapper responseMapper
     ) {
         this.companyRepository = companyRepository;
         this.companyMapper = companyMapper;

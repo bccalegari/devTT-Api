@@ -38,6 +38,8 @@ public class HibernateUserRegistrationInvitationRepository
                 UPDATE
                     UserRegistrationInvitationEntity eri
                 SET
+                    eri.updatedDt = CURRENT_TIMESTAMP,
+                    eri.updatedBy = :idLoggedUser,
                     eri.deletedDt = CURRENT_TIMESTAMP,
                     eri.deletedBy = :idLoggedUser
                 WHERE
@@ -55,12 +57,32 @@ public class HibernateUserRegistrationInvitationRepository
                 UPDATE
                     UserRegistrationInvitationEntity eri
                 SET
+                    eri.updatedDt = CURRENT_TIMESTAMP,
+                    eri.updatedBy = :idLoggedUser,
                     eri.deletedDt = CURRENT_TIMESTAMP,
                     eri.deletedBy = :idLoggedUser
                 WHERE
                     eri.user.id = :userId
                 """)
                 .setParameter("userId", userId)
+                .setParameter("idLoggedUser", idLoggedUser)
+                .executeUpdate();
+    }
+
+    @Override
+    public void disableAllRegistrationInvitationsByCompanyId(Integer companyId, Long idLoggedUser) {
+        entityManager.createQuery("""
+                UPDATE
+                    UserRegistrationInvitationEntity eri
+                SET
+                    eri.updatedDt = CURRENT_TIMESTAMP,
+                    eri.updatedBy = :idLoggedUser,
+                    eri.deletedDt = CURRENT_TIMESTAMP,
+                    eri.deletedBy = :idLoggedUser
+                WHERE
+                    eri.user.company.id = :companyId
+                """)
+                .setParameter("companyId", companyId)
                 .setParameter("idLoggedUser", idLoggedUser)
                 .executeUpdate();
     }

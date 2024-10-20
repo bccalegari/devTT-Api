@@ -7,7 +7,7 @@ import br.com.devtt.core.company.domain.valueobjects.Cnpj;
 import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetAllCompaniesOutputDto;
 import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetCompanyOutputDto;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
-import br.com.devtt.core.company.infrastructure.adapters.mappers.GetCompanyResponseDtoMapper;
+import br.com.devtt.core.company.infrastructure.adapters.mappers.GetCompanyOutputDtoMapper;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PageImpl;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PaginationParams;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +28,7 @@ public class SpringGetAllCompaniesUseCaseUnitTest {
     @InjectMocks private SpringGetAllCompaniesUseCase springGetAllCompaniesUseCase;
     @Mock private CompanyRepository<CompanyEntity> companyRepository;
     @Mock private CompanyMapper companyMapper;
-    @Mock private GetCompanyResponseDtoMapper responseMapper;
+    @Mock private GetCompanyOutputDtoMapper responseMapper;
     private String name;
     private String cnpj;
     private Integer page = 0;

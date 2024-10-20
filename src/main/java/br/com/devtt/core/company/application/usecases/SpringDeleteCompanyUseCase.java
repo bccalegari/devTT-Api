@@ -6,6 +6,7 @@ import br.com.devtt.core.company.application.exceptions.CompanyNotFoundException
 import br.com.devtt.core.company.application.exceptions.DeleteOwnCompanyException;
 import br.com.devtt.core.company.application.exceptions.DeleteStandardCompanyException;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
+import br.com.devtt.core.user.abstractions.application.services.DeleteAllCompanyUsersService;
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
 import br.com.devtt.enterprise.application.exceptions.CoreException;
@@ -19,14 +20,17 @@ import org.springframework.stereotype.Service;
 public class SpringDeleteCompanyUseCase implements DeleteCompanyUseCase {
     private final CompanyRepository<CompanyEntity> companyRepository;
     private final UserRepository<UserEntity> userRepository;
+    private final DeleteAllCompanyUsersService<Integer> deleteAllCompanyUsersService;
 
     @Autowired
     public SpringDeleteCompanyUseCase(
             @Qualifier("HibernateCompanyRepository") CompanyRepository<CompanyEntity> companyRepository,
-            @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository
+            @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
+            @Qualifier("SpringDeleteAllCompanyUsersService") DeleteAllCompanyUsersService<Integer> deleteAllCompanyUsersService
     ) {
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
+        this.deleteAllCompanyUsersService = deleteAllCompanyUsersService;
     }
 
 
@@ -41,13 +45,15 @@ public class SpringDeleteCompanyUseCase implements DeleteCompanyUseCase {
 
         var loggedUserCompanyId = loggedUser.getCompany().getId();
 
+        if (companyEntity.getId().equals(1)) {
+            throw new DeleteStandardCompanyException("Você não tem permissão para deletar esta empresa.");
+        }
+
         if (companyEntity.getId().equals(loggedUserCompanyId)) {
             throw new DeleteOwnCompanyException("Não é possível deletar sua própria empresa.");
         }
 
-        if (companyEntity.getId().equals(1)) {
-            throw new DeleteStandardCompanyException("Você não tem permissão para deletar esta empresa.");
-        }
+        deleteAllCompanyUsersService.execute(companyEntity.getId(), idLoggedUser);
 
         companyEntity.setUpdatedBy(idLoggedUser);
         companyEntity.setDeletedBy(idLoggedUser);
