@@ -25,17 +25,17 @@ class JwtTokenServiceUnitTest {
 
     @Test
     void shouldCreateToken() {
-        assertNotNull(tokenService.create(1L, "name", "role"));
+        assertNotNull(tokenService.create(1L, "name", "role", 1));
     }
 
     @Test
     void shouldThrowExceptionWhenCreateTokenFails() {
-        assertThrows(Exception.class, () -> tokenService.create(null, null, null));
+        assertThrows(Exception.class, () -> tokenService.create(null, null, null, null));
     }
 
     @Test
     void shouldExtractSubject() {
-        Token token = tokenService.create(1L, "name", "role");
+        Token token = tokenService.create(1L, "name", "role", 1);
         assertEquals("1", tokenService.extractSubject(token.getValue()));
     }
 
@@ -46,7 +46,7 @@ class JwtTokenServiceUnitTest {
 
     @Test
     void shouldExtractName() {
-        Token token = tokenService.create(1L, "name", "role");
+        Token token = tokenService.create(1L, "name", "role", 1);
         assertEquals("name", tokenService.extractName(token.getValue()));
     }
 
@@ -57,12 +57,23 @@ class JwtTokenServiceUnitTest {
 
     @Test
     void shouldExtractRole() {
-        Token token = tokenService.create(1L, "name", "role");
+        Token token = tokenService.create(1L, "name", "role", 1);
         assertEquals("role", tokenService.extractRole(token.getValue()));
     }
 
     @Test
     void shouldReturnEmptyStringWhenExtractRoleFails() {
         assertEquals(EMPTY_STRING, tokenService.extractRole(""));
+    }
+
+    @Test
+    void shouldExtractCompanyId() {
+        Token token = tokenService.create(1L, "name", "role", 1);
+        assertEquals(1, tokenService.extractCompanyId(token.getValue()));
+    }
+
+    @Test
+    void shouldReturnZeroWhenExtractCompanyIdFails() {
+        assertEquals(0, tokenService.extractCompanyId(""));
     }
 }

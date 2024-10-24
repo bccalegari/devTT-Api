@@ -45,6 +45,7 @@ public class SpringUserController {
     }
 
     @GetMapping
+    @Secured({"ROLE_MASTER", "ROLE_ADMIN", "ROLE_MANAGER"})
     @Operation(summary = "Listar todos os usuários",
             description = "Retorna uma lista com todos os usuários cadastrados no sistema", tags = {"User"})
     @ApiResponses(
@@ -73,9 +74,13 @@ public class SpringUserController {
     )
     public ResponseEntity<GetAllUsersOutputDto> getAll(
             @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size
+            @RequestParam(required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false) Integer idCompany,
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestAttribute(name = "role") String loggedUserRole,
+            @RequestAttribute(name = "idCompany") Integer loggedUserCompanyId
     ) {
-        var users = getAllUsersUseCase.execute(page, size);
+        var users = getAllUsersUseCase.execute(page, size, idCompany, search, loggedUserRole, loggedUserCompanyId);
         return ResponseEntity.ok(users);
     }
 
@@ -106,13 +111,18 @@ public class SpringUserController {
                             ))
             }
     )
-    public ResponseEntity<GetUserOutputDto> get(@PathVariable Long id) {
-        var user = getUserUseCase.execute(id);
+    public ResponseEntity<GetUserOutputDto> get(
+            @PathVariable Long id,
+            @RequestAttribute(name = "idUser") Long loggedUserId,
+            @RequestAttribute(name = "role") String loggedUserRole,
+            @RequestAttribute(name = "idCompany") Integer loggedUserCompanyId
+    ) {
+        var user = getUserUseCase.execute(id, loggedUserId, loggedUserRole, loggedUserCompanyId);
         return ResponseEntity.ok(user);
     }
 
     @PostMapping
-    @Secured("ROLE_MASTER")
+    @Secured({"ROLE_MASTER", "ROLE_ADMIN"})
     @Operation(summary = "Criar um novo usuário",
             description = "Realiza a criação de um novo usuário no sistema", tags = {"User"})
     @ApiResponses(
@@ -149,7 +159,7 @@ public class SpringUserController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured("ROLE_MASTER")
+    @Secured({"ROLE_MASTER", "ROLE_ADMIN"})
     @Operation(summary = "Deletar um usuário",
             description = "Realiza a deleção de um usuário no sistema", tags = {"User"})
     @ApiResponses(

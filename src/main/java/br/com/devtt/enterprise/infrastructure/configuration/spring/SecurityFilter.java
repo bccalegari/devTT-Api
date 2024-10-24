@@ -42,7 +42,8 @@ public class SecurityFilter extends OncePerRequestFilter {
         var subject = tokenService.extractSubject(bearerToken);
         var name = tokenService.extractName(bearerToken);
         var role = tokenService.extractRole(bearerToken);
-        setRequestAttribute(request, subject, name, role);
+        var idCompany = tokenService.extractCompanyId(bearerToken);
+        setRequestAttribute(request, subject, name, role, idCompany);
         filterChain.doFilter(request, response);
     }
 
@@ -51,11 +52,14 @@ public class SecurityFilter extends OncePerRequestFilter {
         return header != null && header.startsWith("Bearer ") ? header.replace("Bearer ", "") : "";
     }
 
-    private void setRequestAttribute(HttpServletRequest request, String subject, String name, String role) {
+    private void setRequestAttribute(
+            HttpServletRequest request, String subject, String name, String role, Integer idCompany
+    ) {
         if (!subject.isEmpty()) {
             request.setAttribute("idUser", subject);
             request.setAttribute("name", name);
             request.setAttribute("role", role);
+            request.setAttribute("idCompany", idCompany);
             setSpringSecurityContext(subject, Collections.singletonList(getGrant(role)));
         }
     }

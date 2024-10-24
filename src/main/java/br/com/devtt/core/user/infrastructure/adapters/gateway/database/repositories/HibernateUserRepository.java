@@ -69,16 +69,61 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
     }
 
     @Override
-    public Page<UserEntity> findAll(PaginationParams paginationParams) {
-        var users = entityManager.createQuery("SELECT c FROM UserEntity c WHERE c.deletedDt IS NULL",
+    public Page<UserEntity> findAll(PaginationParams paginationParams, String search, Integer idCompany) {
+        var companyIdQuery = idCompany != null && idCompany > 0
+                ? "AND c.company.id = :idCompany "
+                : "";
+
+        var searchQuery = search != null && !search.isBlank()
+                ? """
+                AND (
+                    LOWER(c.name || ' ' || c.lastName) LIKE ('%' || LOWER(:search) || '%')
+                    OR LOWER(c.email) LIKE ('%' || LOWER(:search) || '%')
+                )
+                """
+                : "";
+
+        var usersQuery = entityManager.createQuery(
+                        """
+                        SELECT
+                            c
+                        FROM
+                            UserEntity c
+                        WHERE
+                            c.deletedDt IS NULL
+                        """ + companyIdQuery + searchQuery,
                         UserEntity.class)
                 .setFirstResult(paginationParams.getPage())
-                .setMaxResults(paginationParams.getSize())
-                .getResultList();
+                .setMaxResults(paginationParams.getSize());
 
-        var totalElements = entityManager.createQuery("SELECT COUNT(c) FROM UserEntity c WHERE c.deletedDt IS NULL",
-                        Long.class)
-                .getSingleResult();
+        if (idCompany != null && idCompany > 0) {
+            usersQuery.setParameter("idCompany", idCompany);
+        }
+
+        if (search != null && !search.isBlank()) {
+            usersQuery.setParameter("search", search);
+        }
+
+        var users = usersQuery.getResultList();
+
+        var totalElementsQuery = entityManager.createQuery("""
+                SELECT
+                    COUNT(c)
+                FROM
+                    UserEntity c
+                WHERE
+                    c.deletedDt IS NULL
+                """ + companyIdQuery + searchQuery, Long.class);
+
+        if (idCompany != null && idCompany > 0) {
+            totalElementsQuery.setParameter("idCompany", idCompany);
+        }
+
+        if (search != null && !search.isBlank()) {
+            totalElementsQuery.setParameter("search", search);
+        }
+
+        var totalElements = totalElementsQuery.getSingleResult();
 
         var totalPages = (long) Math.ceil((double) totalElements / paginationParams.getSize());
 
