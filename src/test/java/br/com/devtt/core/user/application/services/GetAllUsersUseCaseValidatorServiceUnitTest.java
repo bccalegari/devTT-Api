@@ -11,40 +11,40 @@ public class GetAllUsersUseCaseValidatorServiceUnitTest {
     private final ValidatorService<GetAllUsersUseCaseValidatorDto> sut = new GetAllUsersUseCaseValidatorService();
 
     @Test
-    void shouldReturnTrueWhenLoggedUserRoleIsAdminOrManagerAndLoggedUserCompanyIdIsEqualToSearchedUsersCompanyId() {
+    void shouldReturnTrueWhenLoggedUserRoleIsManagerAndLoggedUserCompanyIdIsEqualToSearchedUsersCompanyId() {
         var input = GetAllUsersUseCaseValidatorDto.builder()
-                .loggedUserRole("ADMIN")
+                .loggedUserRole("Manager")
                 .loggedUserCompanyId(1)
                 .searchedUsersCompanyId(1)
                 .build();
 
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertTrue(result);
     }
 
     @Test
-    void shouldReturnFalseWhenLoggedUserRoleIsAdminOrManagerAndSearchUsersCompanyIdIsNull() {
+    void shouldReturnFalseWhenLoggedUserRoleIsManagerAndSearchUsersCompanyIdIsNull() {
         var input = GetAllUsersUseCaseValidatorDto.builder()
-                .loggedUserRole("ADMIN")
+                .loggedUserRole("Manager")
                 .loggedUserCompanyId(1)
                 .searchedUsersCompanyId(null)
                 .build();
 
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertFalse(result);
     }
 
     @Test
-    void shouldReturnFalseWhenLoggedUserRoleIsAdminOrManagerAndLoggedUserCompanyIdIsNotEqualToSearchedUsersCompanyId() {
+    void shouldReturnFalseWhenLoggedUserRoleIsManagerAndLoggedUserCompanyIdIsNotEqualToSearchedUsersCompanyId() {
         var input = GetAllUsersUseCaseValidatorDto.builder()
-                .loggedUserRole("ADMIN")
+                .loggedUserRole("Manager")
                 .loggedUserCompanyId(1)
                 .searchedUsersCompanyId(2)
                 .build();
 
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertFalse(result);
     }
@@ -57,7 +57,7 @@ public class GetAllUsersUseCaseValidatorServiceUnitTest {
                 .searchedUsersCompanyId(2)
                 .build();
 
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertTrue(result);
     }

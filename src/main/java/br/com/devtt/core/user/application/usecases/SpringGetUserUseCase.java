@@ -49,7 +49,7 @@ public class SpringGetUserUseCase implements GetUserUseCase<Long, GetUserOutputD
                 idUser, userEntity.getCompany().getId(), loggedUserId, loggedUserRole, loggedUserCompanyId
         );
 
-        if (!validatorService.validate(validatorDto)) {
+        if (!validatorService.execute(validatorDto)) {
             throw new InsufficientCredentialsException();
         }
 

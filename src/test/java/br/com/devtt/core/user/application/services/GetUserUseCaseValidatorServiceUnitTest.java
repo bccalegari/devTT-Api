@@ -17,7 +17,7 @@ public class GetUserUseCaseValidatorServiceUnitTest {
                 .loggedUserId(1L)
                 .searchedUserId(1L)
                 .build();
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertTrue(result);
     }
@@ -29,31 +29,31 @@ public class GetUserUseCaseValidatorServiceUnitTest {
                 .loggedUserId(1L)
                 .searchedUserId(2L)
                 .build();
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertFalse(result);
     }
 
     @Test
-    void shouldReturnTrueWhenLoggedUserRoleIsAdminOrManagerAndLoggedUserCompanyIdIsEqualToSearchedUserCompanyId() {
+    void shouldReturnTrueWhenLoggedUserRoleIsManagerAndLoggedUserCompanyIdIsEqualToSearchedUserCompanyId() {
         var input = GetUserUseCaseValidatorDto.builder()
-                .loggedUserRole("ADMIN")
+                .loggedUserRole("Manager")
                 .loggedUserCompanyId(1)
                 .searchedUserCompanyId(1)
                 .build();
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertTrue(result);
     }
 
     @Test
-    void shouldReturnFalseWhenLoggedUserRoleIsAdminOrManagerAndLoggedUserCompanyIdIsDifferentFromSearchedUserCompanyId() {
+    void shouldReturnFalseWhenLoggedUserRoleIsManagerAndLoggedUserCompanyIdIsDifferentFromSearchedUserCompanyId() {
         var input = GetUserUseCaseValidatorDto.builder()
-                .loggedUserRole("ADMIN")
+                .loggedUserRole("Manager")
                 .loggedUserCompanyId(1)
                 .searchedUserCompanyId(2)
                 .build();
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertFalse(result);
     }
@@ -65,7 +65,7 @@ public class GetUserUseCaseValidatorServiceUnitTest {
                 .loggedUserCompanyId(1)
                 .searchedUserCompanyId(2)
                 .build();
-        var result = sut.validate(input);
+        var result = sut.execute(input);
 
         assertTrue(result);
     }

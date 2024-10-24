@@ -51,7 +51,7 @@ public class SpringGetAllUsersUseCase implements GetAllUsersUseCase<GetAllUsersO
 
         var validatorDto = buildValidatorDto(idCompany, loggedUserRole, loggedUserCompanyId);
 
-        if (!validatorService.validate(validatorDto)) {
+        if (!validatorService.execute(validatorDto)) {
             throw new InsufficientCredentialsException();
         }
 

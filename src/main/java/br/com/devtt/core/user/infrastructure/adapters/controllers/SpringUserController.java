@@ -45,7 +45,7 @@ public class SpringUserController {
     }
 
     @GetMapping
-    @Secured({"ROLE_MASTER", "ROLE_ADMIN", "ROLE_MANAGER"})
+    @Secured({"ROLE_MASTER", "ROLE_MANAGER"})
     @Operation(summary = "Listar todos os usuários",
             description = "Retorna uma lista com todos os usuários cadastrados no sistema", tags = {"User"})
     @ApiResponses(
@@ -122,7 +122,7 @@ public class SpringUserController {
     }
 
     @PostMapping
-    @Secured({"ROLE_MASTER", "ROLE_ADMIN"})
+    @Secured({"ROLE_MASTER", "ROLE_MANAGER"})
     @Operation(summary = "Criar um novo usuário",
             description = "Realiza a criação de um novo usuário no sistema", tags = {"User"})
     @ApiResponses(
@@ -159,7 +159,7 @@ public class SpringUserController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured({"ROLE_MASTER", "ROLE_ADMIN"})
+    @Secured({"ROLE_MASTER", "ROLE_MANAGER"})
     @Operation(summary = "Deletar um usuário",
             description = "Realiza a deleção de um usuário no sistema", tags = {"User"})
     @ApiResponses(

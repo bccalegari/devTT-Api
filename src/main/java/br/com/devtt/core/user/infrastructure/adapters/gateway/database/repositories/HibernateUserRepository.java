@@ -35,6 +35,22 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
     }
 
     @Override
+    public Optional<UserEntity> findByPhone(Long phone) {
+        return entityManager.createQuery("""
+                        SELECT
+                            u
+                        FROM
+                            UserEntity u
+                        WHERE
+                            u.phone = :phone
+                            AND u.deletedDt IS NULL
+                        """, UserEntity.class)
+                .setParameter("phone", phone)
+                .getResultStream()
+                .findFirst();
+    }
+
+    @Override
     public Optional<UserEntity> findByEmail(String email) {
         return entityManager.createQuery("""
                         SELECT
@@ -46,6 +62,22 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
                             AND u.deletedDt IS NULL
                         """, UserEntity.class)
                 .setParameter("email", email)
+                .getResultStream()
+                .findFirst();
+    }
+
+    @Override
+    public Optional<UserEntity> findByCpf(String cpf) {
+        return entityManager.createQuery("""
+                        SELECT
+                            u
+                        FROM
+                            UserEntity u
+                        WHERE
+                            u.cpf = :cpf
+                            AND u.deletedDt IS NULL
+                        """, UserEntity.class)
+                .setParameter("cpf", cpf)
                 .getResultStream()
                 .findFirst();
     }

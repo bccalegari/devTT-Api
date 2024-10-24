@@ -48,13 +48,13 @@ public class SpringGetAllUsersUseCaseUnitTest {
         when(userRepository.findAll(paginationParams, search, searchedUsersCompanyId)).thenReturn(
                 new PageImpl<>(0, 0, 0, 0, 0, List.of())
         );
-        when(validatorService.validate(validatorDto)).thenReturn(true);
+        when(validatorService.execute(validatorDto)).thenReturn(true);
 
         var result = springGetAllUsersUseCase.execute(0, 0, searchedUsersCompanyId, search, loggedUserRole, loggedUserCompanyId);
 
         assertEquals(0, result.users().size());
         verify(userRepository).findAll(paginationParams, search, searchedUsersCompanyId);
-        verify(validatorService).validate(validatorDto);
+        verify(validatorService).execute(validatorDto);
         verifyNoInteractions(userMapper, adapterMapper);
     }
 
@@ -83,7 +83,7 @@ public class SpringGetAllUsersUseCaseUnitTest {
         when(userRepository.findAll(paginationParams, search, searchedUsersCompanyId)).thenReturn(
                 new PageImpl<>(0, 0, 1, 1, 1, userEntityList)
         );
-        when(validatorService.validate(validatorDto)).thenReturn(true);
+        when(validatorService.execute(validatorDto)).thenReturn(true);
         when(userMapper.toDomain(userEntity)).thenReturn(userDomain);
         when(adapterMapper.toDto(userDomain)).thenReturn(userDto);
 
@@ -92,7 +92,7 @@ public class SpringGetAllUsersUseCaseUnitTest {
         assertEquals(1, result.users().size());
         assertEquals(1L, result.users().getFirst().id());
         verify(userRepository).findAll(paginationParams, search, searchedUsersCompanyId);
-        verify(validatorService).validate(validatorDto);
+        verify(validatorService).execute(validatorDto);
         verify(userMapper).toDomain(userEntity);
         verify(adapterMapper).toDto(userDomain);
     }
@@ -114,14 +114,14 @@ public class SpringGetAllUsersUseCaseUnitTest {
         when(userRepository.findAll(paginationParams, search, searchedUsersCompanyId)).thenReturn(
                 new PageImpl<>(0, 0, 0, 0, 0, List.of())
         );
-        when(validatorService.validate(validatorDto)).thenReturn(false);
+        when(validatorService.execute(validatorDto)).thenReturn(false);
 
         assertThrows(InsufficientCredentialsException.class, () -> {
             springGetAllUsersUseCase.execute(0, 0, searchedUsersCompanyId, search, loggedUserRole, loggedUserCompanyId);
         });
 
         verify(userRepository).findAll(paginationParams, search, searchedUsersCompanyId);
-        verify(validatorService).validate(validatorDto);
+        verify(validatorService).execute(validatorDto);
         verifyNoInteractions(userMapper, adapterMapper);
     }
 }
