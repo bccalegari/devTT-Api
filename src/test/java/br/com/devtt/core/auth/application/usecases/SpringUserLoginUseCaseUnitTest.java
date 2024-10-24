@@ -3,15 +3,17 @@ package br.com.devtt.core.auth.application.usecases;
 import br.com.devtt.core.auth.abstractions.application.services.PasswordEncoderService;
 import br.com.devtt.core.auth.abstractions.application.services.TokenService;
 import br.com.devtt.core.auth.abstractions.domain.valueobjects.Token;
-import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.auth.application.exceptions.InvalidPasswordException;
+import br.com.devtt.core.auth.domain.valueobjects.JwtToken;
+import br.com.devtt.core.company.domain.entities.Company;
+import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
+import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.application.exceptions.UserNotFoundException;
 import br.com.devtt.core.user.application.mappers.UserMapper;
-import br.com.devtt.enterprise.domain.entities.Role;
 import br.com.devtt.core.user.domain.entities.User;
-import br.com.devtt.core.auth.domain.valueobjects.JwtToken;
-import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.entities.RoleEntity;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
+import br.com.devtt.enterprise.domain.entities.Role;
+import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.entities.RoleEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +54,11 @@ class SpringUserLoginUseCaseUnitTest {
                                 .name("role")
                                 .build()
                 )
+                .company(
+                        CompanyEntity.builder()
+                                .id(1)
+                                .build()
+                )
                 .build();
         user = User.builder()
                 .id(1L)
@@ -64,6 +71,11 @@ class SpringUserLoginUseCaseUnitTest {
                                 .name("role")
                                 .build()
                 )
+                .company(
+                        Company.builder()
+                                .id(1)
+                                .build()
+                )
                 .build();
     }
 
@@ -72,14 +84,14 @@ class SpringUserLoginUseCaseUnitTest {
         when(userRepository.findByEmail("email")).thenReturn(Optional.of(userEntity));
         when(passwordEncoderService.matches("password", "encodedPassword")).thenReturn(true);
         when(mapper.toDomain(userEntity)).thenReturn(user);
-        when(tokenService.create(anyLong(), anyString(), anyString())).thenReturn(new JwtToken("token"));
+        when(tokenService.create(anyLong(), anyString(), anyString(), anyInt())).thenReturn(new JwtToken("token"));
 
         Token token = useCase.execute("email", "password");
 
         verify(userRepository).findByEmail("email");
         verify(passwordEncoderService).matches("password", "encodedPassword");
         verify(mapper).toDomain(userEntity);
-        verify(tokenService).create(userIdCaptor.capture(), eq("name lastName"), eq("role"));
+        verify(tokenService).create(userIdCaptor.capture(), eq("name lastName"), eq("role"), eq(1));
 
         verifyNoMoreInteractions(userRepository, mapper, passwordEncoderService, tokenService);
 

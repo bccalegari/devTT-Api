@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/company")
-@Secured("ROLE_ADMIN")
+@Secured("ROLE_MASTER")
 @Tag(name = "Company", description = "Endpoints para gerenciamento de empresas")
 public class SpringCompanyController {
     private final CreateCompanyUseCase createCompanyUseCase;
@@ -130,7 +130,7 @@ public class SpringCompanyController {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = OutputDto.class)
+                                    schema = @Schema(implementation = GetAllCompaniesOutputDto.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Requisição inválida",
                             content = @Content(
@@ -172,7 +172,7 @@ public class SpringCompanyController {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = OutputDto.class)
+                                    schema = @Schema(implementation = GetCompanyOutputDto.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Requisição inválida",
                             content = @Content(

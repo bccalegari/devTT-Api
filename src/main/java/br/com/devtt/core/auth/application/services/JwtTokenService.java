@@ -25,7 +25,7 @@ public class JwtTokenService implements TokenService {
     private final Environment env;
 
     @Override
-    public Token create(Long idUser, String name, String role) {
+    public Token create(Long idUser, String name, String role, Integer idCompany) {
         Instant expirationTime;
         String token;
 
@@ -39,6 +39,7 @@ public class JwtTokenService implements TokenService {
                     .withSubject(idUser.toString())
                     .withClaim("name", name)
                     .withClaim("role", role)
+                    .withClaim("idCompany", idCompany)
                     .withExpiresAt(expirationTime)
                     .sign(algorithm);
         } catch (JWTCreationException | JwtSecretNotFoundException e){
@@ -87,6 +88,20 @@ public class JwtTokenService implements TokenService {
                     .asString();
         } catch (Exception e){
             return EMPTY_STRING;
+        }
+    }
+
+    @Override
+    public Integer extractCompanyId(String token) {
+        try {
+            var algorithm = Algorithm.HMAC256(getJwtSecretKey());
+            return JWT.require(algorithm)
+                    .build()
+                    .verify(token)
+                    .getClaim("idCompany")
+                    .asInt();
+        } catch (Exception e){
+            return 0;
         }
     }
 

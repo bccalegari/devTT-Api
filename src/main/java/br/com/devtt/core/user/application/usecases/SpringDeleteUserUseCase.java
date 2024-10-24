@@ -48,6 +48,7 @@ public class SpringDeleteUserUseCase implements DeleteUserUseCase<Long> {
             throw new DeleteStandardUserException("Você não tem permissão para deletar este usuário");
         }
 
+        userEntity.setUpdatedBy(idLoggedUser);
         userEntity.setDeletedBy(idLoggedUser);
 
         userRegistrationInvitationRepository.disableAllRegistrationInvitationsByUserId(idUser, idLoggedUser);

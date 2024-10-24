@@ -3,6 +3,9 @@ package br.com.devtt.core.user.infrastructure.adapters.gateway.database.reposito
 
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.Page;
+import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PageImpl;
+import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PaginationParams;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -66,6 +69,71 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
     }
 
     @Override
+    public Page<UserEntity> findAll(PaginationParams paginationParams, String search, Integer idCompany) {
+        var companyIdQuery = idCompany != null && idCompany > 0
+                ? "AND c.company.id = :idCompany "
+                : "";
+
+        var searchQuery = search != null && !search.isBlank()
+                ? """
+                AND (
+                    LOWER(c.name || ' ' || c.lastName) LIKE ('%' || LOWER(:search) || '%')
+                    OR LOWER(c.email) LIKE ('%' || LOWER(:search) || '%')
+                )
+                """
+                : "";
+
+        var usersQuery = entityManager.createQuery(
+                        """
+                        SELECT
+                            c
+                        FROM
+                            UserEntity c
+                        WHERE
+                            c.deletedDt IS NULL
+                        """ + companyIdQuery + searchQuery,
+                        UserEntity.class)
+                .setFirstResult(paginationParams.getPage())
+                .setMaxResults(paginationParams.getSize());
+
+        if (idCompany != null && idCompany > 0) {
+            usersQuery.setParameter("idCompany", idCompany);
+        }
+
+        if (search != null && !search.isBlank()) {
+            usersQuery.setParameter("search", search);
+        }
+
+        var users = usersQuery.getResultList();
+
+        var totalElementsQuery = entityManager.createQuery("""
+                SELECT
+                    COUNT(c)
+                FROM
+                    UserEntity c
+                WHERE
+                    c.deletedDt IS NULL
+                """ + companyIdQuery + searchQuery, Long.class);
+
+        if (idCompany != null && idCompany > 0) {
+            totalElementsQuery.setParameter("idCompany", idCompany);
+        }
+
+        if (search != null && !search.isBlank()) {
+            totalElementsQuery.setParameter("search", search);
+        }
+
+        var totalElements = totalElementsQuery.getSingleResult();
+
+        var totalPages = (long) Math.ceil((double) totalElements / paginationParams.getSize());
+
+        return new PageImpl<>(
+                paginationParams.getPage(), paginationParams.getSize(), paginationParams.getCurrentPage(),
+                totalElements, totalPages, users
+        );
+    }
+
+    @Override
     public UserEntity save(UserEntity userEntity) {
         String insertQuery = """
                 INSERT INTO
@@ -107,13 +175,37 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
                 UPDATE
                     UserEntity u
                 SET
-                    u.deletedBy = :deletedBy,
-                    u.deletedDt = current_timestamp
+                    u.updatedDt = CURRENT_TIMESTAMP,
+                    u.updatedBy = :updatedBy,
+                    u.deletedDt = CURRENT_TIMESTAMP,
+                    u.deletedBy = :deletedBy
                 WHERE
                     u.id = :id
                 """)
                 .setParameter("id", entity.getId())
+                .setParameter("updatedBy", entity.getUpdatedBy())
                 .setParameter("deletedBy", entity.getDeletedBy())
                 .executeUpdate();
     }
+
+    @Override
+    public void deleteByCompanyId(Integer idCompany, Long idLoggedUser) {
+        entityManager.createQuery("""
+                UPDATE
+                    UserEntity u
+                SET
+                    u.updatedDt = CURRENT_TIMESTAMP,
+                    u.updatedBy = :updatedBy,
+                    u.deletedDt = CURRENT_TIMESTAMP,
+                    u.deletedBy = :deletedBy
+                WHERE
+                    u.deletedDt IS NULL
+                    AND u.company.id = :idCompany
+                """)
+                .setParameter("idCompany", idCompany)
+                .setParameter("updatedBy", idLoggedUser)
+                .setParameter("deletedBy", idLoggedUser)
+                .executeUpdate();
+    }
+
 }

@@ -9,6 +9,6 @@ public class UserNotFoundException extends CoreException {
     private static final long serialVersionUID = -6510438538188547321L;
 
     public UserNotFoundException(String message) {
-        super(message, 400);
+        super(message, 404);
     }
 }

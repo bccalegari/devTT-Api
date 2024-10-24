@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 @Component
-public interface GetCompanyResponseDtoMapper extends AdapterMapper<Company, GetCompanyOutputDto> {
+public interface GetCompanyOutputDtoMapper extends AdapterMapper<Company, GetCompanyOutputDto> {
     default String mapCnpj(Cnpj cnpj) {
         return cnpj.getValue();
     }

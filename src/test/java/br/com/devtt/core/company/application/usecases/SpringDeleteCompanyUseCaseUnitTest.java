@@ -5,6 +5,7 @@ import br.com.devtt.core.company.application.exceptions.CompanyNotFoundException
 import br.com.devtt.core.company.application.exceptions.DeleteOwnCompanyException;
 import br.com.devtt.core.company.application.exceptions.DeleteStandardCompanyException;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
+import br.com.devtt.core.user.abstractions.application.services.DeleteAllCompanyUsersService;
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
 import br.com.devtt.enterprise.application.exceptions.CoreException;
@@ -24,6 +25,7 @@ public class SpringDeleteCompanyUseCaseUnitTest {
     @InjectMocks private SpringDeleteCompanyUseCase springDeleteCompanyUseCase;
     @Mock private CompanyRepository<CompanyEntity> companyRepository;
     @Mock private UserRepository<UserEntity> userRepository;
+    @Mock private DeleteAllCompanyUsersService<Integer> deleteAllCompanyUsersService;
 
     @Test
     void shouldDeleteCompany() {
@@ -35,12 +37,14 @@ public class SpringDeleteCompanyUseCaseUnitTest {
 
         when(companyRepository.findById(2)).thenReturn(Optional.of(companyEntity));
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
+        doNothing().when(deleteAllCompanyUsersService).execute(companyId, loggedUserId);
 
         springDeleteCompanyUseCase.execute(companyId, loggedUserId);
 
         verify(companyRepository).findById(companyId);
         verify(userRepository).findById(loggedUserId);
         verify(companyRepository).delete(companyEntity);
+        verify(deleteAllCompanyUsersService).execute(companyId, loggedUserId);
     }
 
     @Test
@@ -52,7 +56,7 @@ public class SpringDeleteCompanyUseCaseUnitTest {
 
         assertThrows(CompanyNotFoundException.class, () -> springDeleteCompanyUseCase.execute(companyId, loggedUserId));
         verify(companyRepository).findById(companyId);
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(userRepository, deleteAllCompanyUsersService);
     }
 
     @Test
@@ -69,6 +73,7 @@ public class SpringDeleteCompanyUseCaseUnitTest {
         assertThrows(DeleteOwnCompanyException.class, () -> springDeleteCompanyUseCase.execute(companyId, loggedUserId));
         verify(companyRepository).findById(companyId);
         verify(userRepository).findById(loggedUserId);
+        verifyNoInteractions(deleteAllCompanyUsersService);
     }
 
     @Test
@@ -85,6 +90,7 @@ public class SpringDeleteCompanyUseCaseUnitTest {
         assertThrows(DeleteStandardCompanyException.class, () -> springDeleteCompanyUseCase.execute(companyId, loggedUserId));
         verify(companyRepository).findById(companyId);
         verify(userRepository).findById(loggedUserId);
+        verifyNoInteractions(deleteAllCompanyUsersService);
     }
 
     @Test
@@ -100,5 +106,6 @@ public class SpringDeleteCompanyUseCaseUnitTest {
         assertThrows(CoreException.class, () -> springDeleteCompanyUseCase.execute(companyId, loggedUserId));
         verify(companyRepository).findById(companyId);
         verify(userRepository).findById(loggedUserId);
+        verifyNoInteractions(deleteAllCompanyUsersService);
     }
 }
