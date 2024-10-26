@@ -1,10 +1,8 @@
 package br.com.devtt.core.user.infrastructure.adapters.controllers;
 
-import br.com.devtt.core.user.abstractions.application.usecases.CreateUserUseCase;
-import br.com.devtt.core.user.abstractions.application.usecases.DeleteUserUseCase;
-import br.com.devtt.core.user.abstractions.application.usecases.GetAllUsersUseCase;
-import br.com.devtt.core.user.abstractions.application.usecases.GetUserUseCase;
+import br.com.devtt.core.user.abstractions.application.usecases.*;
 import br.com.devtt.core.user.infrastructure.adapters.dto.requests.CreateUserInputDto;
+import br.com.devtt.core.user.infrastructure.adapters.dto.requests.UpdateUserInputDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetAllUsersOutputDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetUserOutputDto;
 import br.com.devtt.enterprise.infrastructure.adapters.dto.responses.OutputDto;
@@ -15,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -30,17 +29,20 @@ public class SpringUserController {
     private final GetAllUsersUseCase<GetAllUsersOutputDto> getAllUsersUseCase;
     private final GetUserUseCase<Long, GetUserOutputDto> getUserUseCase;
     private final CreateUserUseCase<CreateUserInputDto> createUserUseCase;
+    private final UpdateUserUseCase<UpdateUserInputDto> updateUserUseCase;
     private final DeleteUserUseCase<Long> deleteUserUseCase;
 
     public SpringUserController(
             @Qualifier("SpringGetAllUsersUseCase") GetAllUsersUseCase<GetAllUsersOutputDto> getAllUsersUseCase,
             @Qualifier("SpringGetUserUseCase") GetUserUseCase<Long, GetUserOutputDto> getUserUseCase,
             @Qualifier("SpringCreateUserUseCase") CreateUserUseCase<CreateUserInputDto> createUserUseCase,
+            @Qualifier("SpringUpdateUserUseCase") UpdateUserUseCase<UpdateUserInputDto> updateUserUseCase,
             @Qualifier("SpringDeleteUserUseCase") DeleteUserUseCase<Long> deleteUserUseCase
     ) {
         this.getAllUsersUseCase = getAllUsersUseCase;
         this.getUserUseCase = getUserUseCase;
         this.createUserUseCase = createUserUseCase;
+        this.updateUserUseCase = updateUserUseCase;
         this.deleteUserUseCase = deleteUserUseCase;
     }
 
@@ -156,6 +158,45 @@ public class SpringUserController {
     ) {
         createUserUseCase.execute(inputDto, idLoggedUser, loggedUserName);
         return ResponseEntity.status(HttpStatus.CREATED).body(new OutputDto("Usuário criado com sucesso!"));
+    }
+
+    @PutMapping("/{id}")
+    @Secured({"ROLE_MASTER", "ROLE_MANAGER"})
+    @Operation(summary = "Atualizar um usuário",
+            description = "Realiza a atualização de um usuário no sistema", tags = {"User"})
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Deletado",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = OutputDto.class)
+                            )),
+                    @ApiResponse(responseCode = "400", description = "Requisição inválida",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = OutputDto.class)
+                            )),
+                    @ApiResponse(responseCode = "401", description = "Não autorizado",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = OutputDto.class)
+                            )),
+                    @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = OutputDto.class)
+                            ))
+            }
+    )
+    public ResponseEntity<OutputDto> update(
+            @RequestAttribute(name = "idUser") Long idLoggedUser,
+            @RequestAttribute(name = "role") String loggedUserRole,
+            @RequestAttribute(name = "idCompany") Integer loggedUserCompanyId,
+            @PathVariable(name = "id") Long userToBeUpdatedId,
+            @RequestBody @Valid UpdateUserInputDto inputDto
+    ) {
+        updateUserUseCase.execute(inputDto, userToBeUpdatedId, idLoggedUser, loggedUserRole, loggedUserCompanyId);
+        return ResponseEntity.ok(new OutputDto("Usuário atualizado com sucesso!"));
     }
 
     @DeleteMapping("/{id}")

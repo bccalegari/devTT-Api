@@ -11,6 +11,7 @@ import br.com.devtt.enterprise.abstractions.application.services.ComparatorServi
 import br.com.devtt.enterprise.abstractions.application.services.ValidatorService;
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.entities.CityEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +33,12 @@ public class SpringUpdateUserUseCase implements UpdateUserUseCase<UpdateUserInpu
     }
 
     @Override
-    public void execute(UpdateUserInputDto input, Long idLoggedUser, String loggedUserRole, Integer loggedUserCompanyId) {
-        var userEntityOp = userRepository.findById(input.getIdUser());
+    @Transactional
+    public void execute(
+            UpdateUserInputDto input, Long userToBeUpdatedId, Long idLoggedUser,
+            String loggedUserRole, Integer loggedUserCompanyId
+    ) {
+        var userEntityOp = userRepository.findById(userToBeUpdatedId);
 
         if (userEntityOp.isEmpty()) {
             throw new UserNotFoundException("O usuário não foi encontrado.");
@@ -42,7 +47,7 @@ public class SpringUpdateUserUseCase implements UpdateUserUseCase<UpdateUserInpu
         var userEntity = userEntityOp.get();
 
         var validatorDto = UpdateUserUseCaseValidatorDto.builder()
-                .searchedUserId(input.getIdUser())
+                .searchedUserId(userToBeUpdatedId)
                 .searchedUserCompanyId(userEntity.getCompany().getId())
                 .loggedUserId(idLoggedUser)
                 .loggedUserRole(loggedUserRole)
@@ -57,10 +62,8 @@ public class SpringUpdateUserUseCase implements UpdateUserUseCase<UpdateUserInpu
 
         if (hasChanges) {
             userEntity.setUpdatedBy(idLoggedUser);
-            //userRepository.update(userEntity);
+            userRepository.update(userEntity);
         }
-
-
     }
 
     private boolean updateUserFields(UserEntity userEntity, UpdateUserInputDto updateDto) {
@@ -76,14 +79,15 @@ public class SpringUpdateUserUseCase implements UpdateUserUseCase<UpdateUserInpu
             hasChanges = true;
         }
 
-        if (comparatorService.hasChanges(updateDto.getPhone(), userEntity.getPhone())) {
-            var userExists = userRepository.findByPhone(Long.parseLong(updateDto.getPhone()));
+        var newPhone = updateDto.getPhone() == null ? null : Long.parseLong(updateDto.getPhone());
+        if (comparatorService.hasChanges(newPhone, userEntity.getPhone())) {
+            var userExists = userRepository.findByPhone(newPhone);
 
             if (userExists.isPresent()) {
                 throw new UserAlreadyExistsException("Já existe um usuário com esse telefone.");
             }
 
-            userEntity.setPhone(Long.parseLong(updateDto.getPhone()));
+            userEntity.setPhone(newPhone);
             hasChanges = true;
         }
 
@@ -119,8 +123,9 @@ public class SpringUpdateUserUseCase implements UpdateUserUseCase<UpdateUserInpu
             hasChanges = true;
         }
 
-        if (comparatorService.hasChanges(updateDto.getSex(), userEntity.getSex())) {
-            userEntity.setSex(updateDto.getSex().charAt(0));
+        var newSex = updateDto.getSex() == null ? null : updateDto.getSex().charAt(0);
+        if (comparatorService.hasChanges(newSex, userEntity.getSex())) {
+            userEntity.setSex(newSex);
             hasChanges = true;
         }
 

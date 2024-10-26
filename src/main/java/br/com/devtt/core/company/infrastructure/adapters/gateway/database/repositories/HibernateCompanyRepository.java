@@ -8,6 +8,7 @@ import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entiti
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -104,6 +105,7 @@ public class HibernateCompanyRepository implements CompanyRepository<CompanyEnti
     }
 
     @Override
+    @Modifying
     public void update(CompanyEntity entity) {
         var query = """
                 UPDATE CompanyEntity c
@@ -120,6 +122,7 @@ public class HibernateCompanyRepository implements CompanyRepository<CompanyEnti
     }
 
     @Override
+    @Modifying
     public void delete(CompanyEntity entity) {
         var query = """
                 UPDATE CompanyEntity c
