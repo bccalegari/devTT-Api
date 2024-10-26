@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 @Qualifier("ComparatorServiceImpl")
 public class ComparatorServiceImpl implements ComparatorService {
     public <T> boolean hasChanges(T newValue, T oldValue) {
+        if (newValue == null) {
+            return false;
+        }
+
         if (newValue.getClass() != oldValue.getClass()) {
             throw new IllegalArgumentException("The objects must be of the same type.");
         }

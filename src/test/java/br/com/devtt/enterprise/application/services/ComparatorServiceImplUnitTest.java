@@ -27,4 +27,14 @@ public class ComparatorServiceImplUnitTest {
 
         assertFalse(result);
     }
+
+    @Test
+    void shouldReturnFalseWhenNewValueIsNull() {
+        Void newValue = null;
+        var oldValue = "value";
+
+        boolean result = comparatorService.hasChanges(newValue, oldValue);
+
+        assertFalse(result);
+    }
 }

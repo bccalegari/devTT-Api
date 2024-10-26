@@ -48,7 +48,7 @@ public class CreateUserInputDto {
 
     @NotNull(message = "O campo sexo é obrigatório")
     @NotEmpty(message = "O campo sexo não pode ser vazio")
-    @ListContainsValue(message = "O campo sexo deve ser 'M' ou 'F'")
+    @Pattern(regexp = "^[MF]$", message = "O campo sexo deve ser 'M' ou 'F'")
     private final String sex;
 
     @NotNull(message = "O campo rua é obrigatório")

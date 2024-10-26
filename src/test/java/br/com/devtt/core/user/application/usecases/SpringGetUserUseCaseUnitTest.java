@@ -83,7 +83,7 @@ public class SpringGetUserUseCaseUnitTest {
         );
 
         when(userRepository.findById(idUser)).thenReturn(Optional.of(userEntity));
-        when(validatorService.validate(validatorDto)).thenReturn(true);
+        when(validatorService.execute(validatorDto)).thenReturn(true);
         when(userMapper.toDomain(userEntity)).thenReturn(user);
         when(adapterMapper.toDto(user)).thenReturn(userOutputDto);
 
@@ -92,7 +92,7 @@ public class SpringGetUserUseCaseUnitTest {
         assertEquals(userOutputDto, result);
 
         verify(userRepository).findById(idUser);
-        verify(validatorService).validate(validatorDto);
+        verify(validatorService).execute(validatorDto);
         verify(userMapper).toDomain(userEntity);
         verify(adapterMapper).toDto(user);
     }
@@ -116,14 +116,14 @@ public class SpringGetUserUseCaseUnitTest {
         var userEntity = UserEntity.builder().id(idUser).company(CompanyEntity.builder().id(searchedUserCompanyId).build()).build();
 
         when(userRepository.findById(idUser)).thenReturn(Optional.of(userEntity));
-        when(validatorService.validate(validatorDto)).thenReturn(false);
+        when(validatorService.execute(validatorDto)).thenReturn(false);
 
         assertThrows(InsufficientCredentialsException.class,
                 () -> springGetUserUseCase.execute(idUser, loggedUserId, loggedUserRole, loggedUserCompanyId)
         );
 
         verify(userRepository).findById(idUser);
-        verify(validatorService).validate(validatorDto);
+        verify(validatorService).execute(validatorDto);
         verifyNoInteractions(userMapper, adapterMapper);
     }
 }

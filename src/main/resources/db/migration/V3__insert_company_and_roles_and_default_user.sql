@@ -5,7 +5,6 @@ INSERT INTO client.company(name, cnpj, "createdBy")
 
 INSERT INTO security.role(name)
     VALUES ('Master'),
-        ('Admin'),
         ('Manager'),
         ('User');
 

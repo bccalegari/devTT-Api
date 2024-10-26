@@ -1,18 +1,18 @@
 package br.com.devtt.core.user.application.services;
 
-import br.com.devtt.core.user.infrastructure.adapters.dto.GetUserUseCaseValidatorDto;
+import br.com.devtt.core.user.infrastructure.adapters.dto.UpdateUserUseCaseValidatorDto;
 import br.com.devtt.enterprise.abstractions.application.services.ValidatorService;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GetUserUseCaseValidatorServiceUnitTest {
-    private final ValidatorService<GetUserUseCaseValidatorDto> sut = new GetUserUseCaseValidatorService();
+public class UpdateUserUseCaseValidatorServiceUnitTest {
+    private final ValidatorService<UpdateUserUseCaseValidatorDto> sut = new UpdateUserUseCaseValidatorService();
 
     @Test
     void shouldReturnTrueWhenLoggedUserRoleIsUserAndLoggedUserIdIsEqualToSearchedUserId() {
-        var input = GetUserUseCaseValidatorDto.builder()
+        var input = UpdateUserUseCaseValidatorDto.builder()
                 .loggedUserRole("USER")
                 .loggedUserId(1L)
                 .searchedUserId(1L)
@@ -24,7 +24,7 @@ public class GetUserUseCaseValidatorServiceUnitTest {
 
     @Test
     void shouldReturnFalseWhenLoggedUserRoleIsUserAndLoggedUserIdIsDifferentFromSearchedUserId() {
-        var input = GetUserUseCaseValidatorDto.builder()
+        var input = UpdateUserUseCaseValidatorDto.builder()
                 .loggedUserRole("USER")
                 .loggedUserId(1L)
                 .searchedUserId(2L)
@@ -36,7 +36,7 @@ public class GetUserUseCaseValidatorServiceUnitTest {
 
     @Test
     void shouldReturnTrueWhenLoggedUserRoleIsManagerAndLoggedUserCompanyIdIsEqualToSearchedUserCompanyId() {
-        var input = GetUserUseCaseValidatorDto.builder()
+        var input = UpdateUserUseCaseValidatorDto.builder()
                 .loggedUserRole("Manager")
                 .loggedUserCompanyId(1)
                 .searchedUserCompanyId(1)
@@ -48,7 +48,7 @@ public class GetUserUseCaseValidatorServiceUnitTest {
 
     @Test
     void shouldReturnFalseWhenLoggedUserRoleIsManagerAndLoggedUserCompanyIdIsDifferentFromSearchedUserCompanyId() {
-        var input = GetUserUseCaseValidatorDto.builder()
+        var input = UpdateUserUseCaseValidatorDto.builder()
                 .loggedUserRole("Manager")
                 .loggedUserCompanyId(1)
                 .searchedUserCompanyId(2)
@@ -60,7 +60,7 @@ public class GetUserUseCaseValidatorServiceUnitTest {
 
     @Test
     void shouldReturnTrueWhenLoggedUserRoleIsMaster() {
-        var input = GetUserUseCaseValidatorDto.builder()
+        var input = UpdateUserUseCaseValidatorDto.builder()
                 .loggedUserRole("MASTER")
                 .loggedUserCompanyId(1)
                 .searchedUserCompanyId(2)

@@ -10,18 +10,17 @@ import org.springframework.stereotype.Service;
 @Qualifier("GetAllUsersUseCaseValidatorService")
 public class GetAllUsersUseCaseValidatorService implements ValidatorService<GetAllUsersUseCaseValidatorDto> {
     @Override
-    public boolean validate(GetAllUsersUseCaseValidatorDto input) {
-        var isAdminOrManager = input.getLoggedUserRole().equalsIgnoreCase(RoleType.ADMIN.getValue())
-                || input.getLoggedUserRole().equalsIgnoreCase(RoleType.MANAGER.getValue());
+    public boolean execute(GetAllUsersUseCaseValidatorDto input) {
+        var isManager = input.getLoggedUserRole().equalsIgnoreCase(RoleType.MANAGER.getValue());
 
-        if (isAdminOrManager) {
-            return validateWhenLoggedUserRoleIsAdminOrManager(input);
+        if (isManager) {
+            return validateWhenLoggedUserRoleIsManager(input);
         }
 
         return true;
     }
 
-    private boolean validateWhenLoggedUserRoleIsAdminOrManager(GetAllUsersUseCaseValidatorDto input) {
+    private boolean validateWhenLoggedUserRoleIsManager(GetAllUsersUseCaseValidatorDto input) {
         if (input.getSearchedUsersCompanyId() == null) {
             return false;
         }

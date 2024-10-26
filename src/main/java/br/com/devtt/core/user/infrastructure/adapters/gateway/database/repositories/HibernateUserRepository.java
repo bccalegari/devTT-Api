@@ -9,6 +9,7 @@ import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.Paginati
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -35,6 +36,22 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
     }
 
     @Override
+    public Optional<UserEntity> findByPhone(Long phone) {
+        return entityManager.createQuery("""
+                        SELECT
+                            u
+                        FROM
+                            UserEntity u
+                        WHERE
+                            u.phone = :phone
+                            AND u.deletedDt IS NULL
+                        """, UserEntity.class)
+                .setParameter("phone", phone)
+                .getResultStream()
+                .findFirst();
+    }
+
+    @Override
     public Optional<UserEntity> findByEmail(String email) {
         return entityManager.createQuery("""
                         SELECT
@@ -46,6 +63,22 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
                             AND u.deletedDt IS NULL
                         """, UserEntity.class)
                 .setParameter("email", email)
+                .getResultStream()
+                .findFirst();
+    }
+
+    @Override
+    public Optional<UserEntity> findByCpf(String cpf) {
+        return entityManager.createQuery("""
+                        SELECT
+                            u
+                        FROM
+                            UserEntity u
+                        WHERE
+                            u.cpf = :cpf
+                            AND u.deletedDt IS NULL
+                        """, UserEntity.class)
+                .setParameter("cpf", cpf)
                 .getResultStream()
                 .findFirst();
     }
@@ -170,6 +203,54 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
     }
 
     @Override
+    @Modifying
+    public void update(UserEntity entity) {
+        var query = """
+                UPDATE
+                    UserEntity u
+                SET
+                    u.name = :name,
+                    u.lastName = :lastName,
+                    u.phone = :phone,
+                    u.email = :email,
+                    u.password = :password,
+                    u.cpf = :cpf,
+                    u.birthDate = :birthDate,
+                    u.sex = :sex,
+                    u.street = :street,
+                    u.streetNumber = :streetNumber,
+                    u.district = :district,
+                    u.complement = :complement,
+                    u.cep = :cep,
+                    u.city = :city,
+                    u.updatedDt = CURRENT_TIMESTAMP,
+                    u.updatedBy = :updatedBy
+                WHERE
+                    u.id = :id
+                    AND u.deletedDt IS NULL
+                """;
+        entityManager.createQuery(query)
+                .setParameter("name", entity.getName())
+                .setParameter("lastName", entity.getLastName())
+                .setParameter("phone", entity.getPhone())
+                .setParameter("email", entity.getEmail())
+                .setParameter("password", entity.getPassword())
+                .setParameter("cpf", entity.getCpf())
+                .setParameter("birthDate", entity.getBirthDate())
+                .setParameter("sex", entity.getSex())
+                .setParameter("street", entity.getStreet())
+                .setParameter("streetNumber", entity.getStreetNumber())
+                .setParameter("district", entity.getDistrict())
+                .setParameter("complement", entity.getComplement())
+                .setParameter("cep", entity.getCep())
+                .setParameter("city", entity.getCity())
+                .setParameter("updatedBy", entity.getUpdatedBy())
+                .setParameter("id", entity.getId())
+                .executeUpdate();
+    }
+
+    @Override
+    @Modifying
     public void delete(UserEntity entity) {
         entityManager.createQuery("""
                 UPDATE
@@ -189,6 +270,7 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
     }
 
     @Override
+    @Modifying
     public void deleteByCompanyId(Integer idCompany, Long idLoggedUser) {
         entityManager.createQuery("""
                 UPDATE
