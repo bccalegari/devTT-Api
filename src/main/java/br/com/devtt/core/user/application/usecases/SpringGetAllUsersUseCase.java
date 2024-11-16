@@ -4,10 +4,10 @@ import br.com.devtt.core.user.abstractions.application.usecases.GetAllUsersUseCa
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.application.mappers.UserMapper;
 import br.com.devtt.core.user.domain.entities.User;
-import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.dto.GetAllUsersUseCaseValidatorDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetAllUsersOutputDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetUserOutputDto;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
 import br.com.devtt.core.user.infrastructure.adapters.mappers.GetUserOutputDtoMapper;
 import br.com.devtt.enterprise.abstractions.application.mappers.DomainMapper;
@@ -17,6 +17,7 @@ import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.Page
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.mappers.AdapterMapper;
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PaginationParams;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -30,18 +31,20 @@ public class SpringGetAllUsersUseCase implements GetAllUsersUseCase<GetAllUsersO
     private final CacheGateway cacheGateway;
     private final DomainMapper<User, UserEntity> userMapper;
     private final AdapterMapper<User, GetUserOutputDto> adapterMapper;
+    private final ObjectMapper objectMapper;
 
     public SpringGetAllUsersUseCase(
             @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
             @Qualifier("GetAllUsersUseCaseValidatorService") ValidatorService<GetAllUsersUseCaseValidatorDto> validatorService,
             @Qualifier("RedisCacheGateway") CacheGateway cacheGateway,
-            UserMapper userMapper, GetUserOutputDtoMapper adapterMapper
+            UserMapper userMapper, GetUserOutputDtoMapper adapterMapper, ObjectMapper objectMapper
     ) {
         this.userRepository = userRepository;
         this.validatorService = validatorService;
         this.cacheGateway = cacheGateway;
         this.userMapper = userMapper;
         this.adapterMapper = adapterMapper;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -56,7 +59,7 @@ public class SpringGetAllUsersUseCase implements GetAllUsersUseCase<GetAllUsersO
                 .get(UserCacheKeys.USERS_PAGED.getKey().formatted(page, size, idCompany, search));
 
         if (usersFromCache != null) {
-            return (GetAllUsersOutputDto) usersFromCache;
+            return objectMapper.convertValue(usersFromCache, GetAllUsersOutputDto.class);
         }
 
         userEntityPage = userRepository.findAll(paginationParams, search, idCompany);

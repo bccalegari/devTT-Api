@@ -14,6 +14,7 @@ import br.com.devtt.core.user.infrastructure.adapters.mappers.GetUserOutputDtoMa
 import br.com.devtt.enterprise.abstractions.application.services.ValidatorService;
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +35,7 @@ public class SpringGetUserUseCaseUnitTest {
     @Mock private CacheGateway cacheGateway;
     @Mock private UserMapper userMapper;
     @Mock private GetUserOutputDtoMapper adapterMapper;
+    @Mock private ObjectMapper objectMapper;
 
     @Test
     void shouldThrowUserNotFoundExceptionWhenUserNotFound() {
@@ -131,6 +133,7 @@ public class SpringGetUserUseCaseUnitTest {
         );
 
         when(cacheGateway.get(UserCacheKeys.USER.getKey().formatted(idUser))).thenReturn(userOutputDto);
+        when(objectMapper.convertValue(userOutputDto, GetUserOutputDto.class)).thenReturn(userOutputDto);
 
         var result = springGetUserUseCase.execute(idUser, loggedUserId, loggedUserRole, loggedUserCompanyId);
 

@@ -14,6 +14,7 @@ import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.Cach
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PageImpl;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PaginationParams;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +35,7 @@ public class SpringGetAllUsersUseCaseUnitTest {
     @Mock private CacheGateway cacheGateway;
     @Mock private UserMapper userMapper;
     @Mock private GetUserOutputDtoMapper adapterMapper;
+    @Mock private ObjectMapper objectMapper;
 
     @Test
     void shouldReturnAnEmptyListWhenThereAreNoUsers() {
@@ -148,6 +150,7 @@ public class SpringGetAllUsersUseCaseUnitTest {
         when(cacheGateway.get(UserCacheKeys.USERS_PAGED.getKey()
                 .formatted(0, 10, searchedUsersCompanyId, search, loggedUserRole, loggedUserCompanyId)))
                 .thenReturn(usersDto);
+        when(objectMapper.convertValue(usersDto, GetAllUsersOutputDto.class)).thenReturn(usersDto);
 
         var result = springGetAllUsersUseCase.execute(0, 10, searchedUsersCompanyId, search, loggedUserRole, loggedUserCompanyId);
 

@@ -15,6 +15,7 @@ import br.com.devtt.enterprise.abstractions.application.services.ValidatorServic
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.mappers.AdapterMapper;
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -26,18 +27,20 @@ public class SpringGetUserUseCase implements GetUserUseCase<Long, GetUserOutputD
     private final CacheGateway cacheGateway;
     private final DomainMapper<User, UserEntity> userMapper;
     private final AdapterMapper<User, GetUserOutputDto> adapterMapper;
+    private final ObjectMapper objectMapper;
 
     public SpringGetUserUseCase(
             @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
             @Qualifier("GetUserUseCaseValidatorService") ValidatorService<GetUserUseCaseValidatorDto> validatorService,
             @Qualifier("RedisCacheGateway") CacheGateway cacheGateway,
-            UserMapper userMapper, GetUserOutputDtoMapper adapterMapper
+            UserMapper userMapper, GetUserOutputDtoMapper adapterMapper, ObjectMapper objectMapper
     ) {
         this.userRepository = userRepository;
         this.validatorService = validatorService;
         this.cacheGateway = cacheGateway;
         this.userMapper = userMapper;
         this.adapterMapper = adapterMapper;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class SpringGetUserUseCase implements GetUserUseCase<Long, GetUserOutputD
         var userFromCache = cacheGateway.get(UserCacheKeys.USER.getKey().formatted(idUser));
 
         if (userFromCache != null) {
-            return (GetUserOutputDto) userFromCache;
+            return objectMapper.convertValue(userFromCache, GetUserOutputDto.class);
         }
 
         var userEntityOp = userRepository.findById(idUser);
