@@ -4,9 +4,11 @@ import br.com.devtt.core.company.abstractions.infrastructure.adapters.gateway.Co
 import br.com.devtt.core.company.application.exceptions.CompanyAlreadyExistsException;
 import br.com.devtt.core.company.application.mappers.CompanyMapper;
 import br.com.devtt.core.company.domain.entities.Company;
-import br.com.devtt.enterprise.domain.valueobjects.Auditing;
 import br.com.devtt.core.company.domain.valueobjects.Cnpj;
+import br.com.devtt.core.company.infrastructure.adapters.gateway.cache.CompanyCacheKeys;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
+import br.com.devtt.enterprise.domain.valueobjects.Auditing;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,7 @@ public class SpringCreateCompanyUseCaseUnitTest {
     @InjectMocks private SpringCreateCompanyUseCase springCreateCompanyUseCase;
     @Mock private CompanyRepository<CompanyEntity> companyRepository;
     @Mock private CompanyMapper companyMapper;
+    @Mock private CacheGateway cacheGateway;
     private Company companyDomain;
     private CompanyEntity companyEntity;
 
@@ -46,6 +49,7 @@ public class SpringCreateCompanyUseCaseUnitTest {
         when(companyRepository.findByCnpj(companyDomain.getCnpj().getValue())).thenReturn(Optional.empty());
         doReturn(companyEntity).when(companyMapper).toEntity(any(Company.class));
         when(companyRepository.save(companyEntity)).thenReturn(companyEntity);
+        doNothing().when(cacheGateway).deleteAllFrom(CompanyCacheKeys.COMPANIES_PATTERN.getKey());
 
         springCreateCompanyUseCase.execute(
                 companyDomain.getName(), companyDomain.getCnpj().getValue(), companyDomain.getAuditing().getCreatedBy()
@@ -54,6 +58,7 @@ public class SpringCreateCompanyUseCaseUnitTest {
         verify(companyRepository).findByCnpj(companyDomain.getCnpj().getValue());
         verify(companyMapper).toEntity(any(Company.class));
         verify(companyRepository).save(companyEntity);
+        verify(cacheGateway).deleteAllFrom(CompanyCacheKeys.COMPANIES_PATTERN.getKey());
     }
 
     @Test
@@ -69,6 +74,6 @@ public class SpringCreateCompanyUseCaseUnitTest {
 
         verify(companyRepository).findByCnpj(companyDomain.getCnpj().getValue());
         verifyNoMoreInteractions(companyRepository);
-        verifyNoInteractions(companyMapper);
+        verifyNoInteractions(companyMapper, cacheGateway);
     }
 }

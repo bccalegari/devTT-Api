@@ -1,20 +1,22 @@
 package br.com.devtt.core.user.application.usecases;
 
-import br.com.devtt.enterprise.abstractions.application.services.MailService;
 import br.com.devtt.core.auth.abstractions.application.services.PasswordEncoderService;
-import br.com.devtt.core.user.invitation.abstractions.application.usecases.CreateUserRegistrationInvitationUseCase;
 import br.com.devtt.core.user.abstractions.application.usecases.CreateUserUseCase;
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
-import br.com.devtt.enterprise.abstractions.infrastructure.adapters.mappers.AdapterMapper;
-import br.com.devtt.enterprise.abstractions.application.mappers.DomainMapper;
 import br.com.devtt.core.user.application.exceptions.UserAlreadyExistsException;
 import br.com.devtt.core.user.application.mappers.UserMapper;
 import br.com.devtt.core.user.domain.entities.User;
-import br.com.devtt.core.user.invitation.infrastructure.adapters.dto.UserInvitationEmailPayload;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.dto.requests.CreateUserInputDto;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
-import br.com.devtt.core.user.invitation.infrastructure.adapters.gateway.database.entities.UserRegistrationInvitationEntity;
 import br.com.devtt.core.user.infrastructure.adapters.mappers.CreateUserInputDtoMapper;
+import br.com.devtt.core.user.invitation.abstractions.application.usecases.CreateUserRegistrationInvitationUseCase;
+import br.com.devtt.core.user.invitation.infrastructure.adapters.dto.UserInvitationEmailPayload;
+import br.com.devtt.core.user.invitation.infrastructure.adapters.gateway.database.entities.UserRegistrationInvitationEntity;
+import br.com.devtt.enterprise.abstractions.application.mappers.DomainMapper;
+import br.com.devtt.enterprise.abstractions.application.services.MailService;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.mappers.AdapterMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -28,8 +30,10 @@ public class SpringCreateUserUseCase implements CreateUserUseCase<CreateUserInpu
     private final CreateUserRegistrationInvitationUseCase<UserRegistrationInvitationEntity>
             createUserRegistrationInvitationUseCase;
     private final MailService<UserInvitationEmailPayload> mailService;
+    private final CacheGateway cacheGateway;
     private final AdapterMapper<User, CreateUserInputDto> adapterMapper;
     private final DomainMapper<User, UserEntity> domainMapper;
+
 
     @Autowired
     public SpringCreateUserUseCase(
@@ -38,12 +42,14 @@ public class SpringCreateUserUseCase implements CreateUserUseCase<CreateUserInpu
             @Qualifier("SpringCreateUserRegistrationInvitationUseCase")
             CreateUserRegistrationInvitationUseCase<UserRegistrationInvitationEntity> createUserRegistrationInvitationUseCase,
             @Qualifier("RabbitInvitationMailProducerService") MailService<UserInvitationEmailPayload> mailService,
+            @Qualifier("RedisCacheGateway") CacheGateway cacheGateway,
             CreateUserInputDtoMapper createUserInputDtoMapper, UserMapper userMapper
     ) {
         this.userRepository = userRepository;
         this.passwordEncoderService = passwordEncoderService;
         this.createUserRegistrationInvitationUseCase = createUserRegistrationInvitationUseCase;
         this.mailService = mailService;
+        this.cacheGateway = cacheGateway;
         adapterMapper = createUserInputDtoMapper;
         domainMapper = userMapper;
     }
@@ -71,6 +77,8 @@ public class SpringCreateUserUseCase implements CreateUserUseCase<CreateUserInpu
                 userEntity.getEmail(), userEntity.getCreatedBy(), idLoggedUser);
 
         sendEmail(user, userInvitationEntity.getToken(), loggedUserName);
+
+        cacheGateway.deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
     }
 
     private void sendEmail(User user, String token, String creatorName) {

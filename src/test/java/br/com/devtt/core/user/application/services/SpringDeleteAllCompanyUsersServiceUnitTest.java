@@ -6,9 +6,11 @@ import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entiti
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.application.exceptions.DeleteOwnUserException;
 import br.com.devtt.core.user.application.exceptions.DeleteStandardUserException;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
 import br.com.devtt.core.user.invitation.abstractions.infrastructure.adapters.gateway.UserRegistrationInvitationRepository;
 import br.com.devtt.core.user.invitation.infrastructure.adapters.gateway.database.entities.UserRegistrationInvitationEntity;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.application.exceptions.CoreException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +29,7 @@ public class SpringDeleteAllCompanyUsersServiceUnitTest {
     @Mock private CompanyRepository<CompanyEntity> companyRepository;
     @Mock private UserRepository<UserEntity> userRepository;
     @Mock private UserRegistrationInvitationRepository<UserRegistrationInvitationEntity> userRegistrationInvitationRepository;
+    @Mock private CacheGateway cacheGateway;
 
     @Test
     void shouldThrowCompanyNotFoundExceptionWhenCompanyNotFound() {
@@ -38,7 +41,7 @@ public class SpringDeleteAllCompanyUsersServiceUnitTest {
         assertThrows(CompanyNotFoundException.class, () -> springDeleteAllCompanyUsersService.execute(idCompany, idLoggedUser));
 
         verify(companyRepository).findById(idCompany);
-        verifyNoInteractions(userRepository, userRegistrationInvitationRepository);
+        verifyNoInteractions(userRepository, userRegistrationInvitationRepository, cacheGateway);
     }
 
     @Test
@@ -52,7 +55,7 @@ public class SpringDeleteAllCompanyUsersServiceUnitTest {
         assertThrows(DeleteStandardUserException.class, () -> springDeleteAllCompanyUsersService.execute(idCompany, idLoggedUser));
 
         verify(companyRepository).findById(idCompany);
-        verifyNoInteractions(userRepository, userRegistrationInvitationRepository);
+        verifyNoInteractions(userRepository, userRegistrationInvitationRepository, cacheGateway);
     }
 
     @Test
@@ -68,7 +71,7 @@ public class SpringDeleteAllCompanyUsersServiceUnitTest {
 
         verify(companyRepository).findById(idCompany);
         verify(userRepository).findById(idLoggedUser);
-        verifyNoInteractions(userRegistrationInvitationRepository);
+        verifyNoInteractions(userRegistrationInvitationRepository, cacheGateway);
     }
 
     @Test
@@ -85,7 +88,7 @@ public class SpringDeleteAllCompanyUsersServiceUnitTest {
 
         verify(companyRepository).findById(idCompany);
         verify(userRepository).findById(idLoggedUser);
-        verifyNoInteractions(userRegistrationInvitationRepository);
+        verifyNoInteractions(userRegistrationInvitationRepository, cacheGateway);
     }
 
     @Test
@@ -98,6 +101,7 @@ public class SpringDeleteAllCompanyUsersServiceUnitTest {
 
         when(companyRepository.findById(idCompany)).thenReturn(Optional.of(companyEntity));
         when(userRepository.findById(idLoggedUser)).thenReturn(Optional.of(loggedUserEntity));
+        doNothing().when(cacheGateway).deleteAllFrom(anyString());
 
         springDeleteAllCompanyUsersService.execute(idCompany, idLoggedUser);
 
@@ -105,5 +109,7 @@ public class SpringDeleteAllCompanyUsersServiceUnitTest {
         verify(userRepository).findById(idLoggedUser);
         verify(userRegistrationInvitationRepository).disableAllRegistrationInvitationsByCompanyId(idCompany, idLoggedUser);
         verify(userRepository).deleteByCompanyId(idCompany, idLoggedUser);
+        verify(cacheGateway).deleteAllFrom(UserCacheKeys.USER_PATTERN.getKey());
+        verify(cacheGateway).deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
     }
 }

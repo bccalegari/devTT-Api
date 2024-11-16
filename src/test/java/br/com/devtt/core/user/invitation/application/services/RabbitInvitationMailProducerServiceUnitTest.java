@@ -1,6 +1,5 @@
-package br.com.devtt.enterprise.application.services;
+package br.com.devtt.core.user.invitation.application.services;
 
-import br.com.devtt.core.user.invitation.application.services.RabbitInvitationMailProducerService;
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.MailGateway;
 import br.com.devtt.core.user.invitation.infrastructure.adapters.dto.UserInvitationEmailPayload;
 import br.com.devtt.enterprise.infrastructure.adapters.dto.requests.MailProducerDto;

@@ -1,28 +1,30 @@
 package br.com.devtt.core.user.application.usecases;
 
-import br.com.devtt.core.user.domain.valueobjects.Cpf;
-import br.com.devtt.core.user.domain.valueobjects.Sex;
-import br.com.devtt.enterprise.abstractions.application.services.MailService;
 import br.com.devtt.core.auth.abstractions.application.services.PasswordEncoderService;
-import br.com.devtt.core.user.invitation.abstractions.application.usecases.CreateUserRegistrationInvitationUseCase;
+import br.com.devtt.core.company.domain.entities.Company;
+import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.application.exceptions.UserAlreadyExistsException;
 import br.com.devtt.core.user.application.mappers.UserMapper;
-import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
-import br.com.devtt.enterprise.domain.entities.City;
-import br.com.devtt.core.company.domain.entities.Company;
-import br.com.devtt.enterprise.domain.entities.Role;
 import br.com.devtt.core.user.domain.entities.User;
+import br.com.devtt.core.user.domain.valueobjects.Cpf;
+import br.com.devtt.core.user.domain.valueobjects.Sex;
 import br.com.devtt.core.user.infrastructure.adapters.dto.requests.CreateUserInputDto;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
+import br.com.devtt.core.user.infrastructure.adapters.mappers.CreateUserInputDtoMapper;
+import br.com.devtt.core.user.invitation.abstractions.application.usecases.CreateUserRegistrationInvitationUseCase;
+import br.com.devtt.core.user.invitation.infrastructure.adapters.dto.UserInvitationEmailPayload;
+import br.com.devtt.core.user.invitation.infrastructure.adapters.gateway.database.entities.UserRegistrationInvitationEntity;
+import br.com.devtt.enterprise.abstractions.application.services.MailService;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
+import br.com.devtt.enterprise.domain.entities.City;
+import br.com.devtt.enterprise.domain.entities.Role;
 import br.com.devtt.enterprise.domain.valueobjects.Address;
 import br.com.devtt.enterprise.domain.valueobjects.Auditing;
 import br.com.devtt.enterprise.domain.valueobjects.Cep;
-import br.com.devtt.core.user.invitation.infrastructure.adapters.dto.UserInvitationEmailPayload;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.entities.CityEntity;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.entities.RoleEntity;
-import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
-import br.com.devtt.core.user.invitation.infrastructure.adapters.gateway.database.entities.UserRegistrationInvitationEntity;
-import br.com.devtt.core.user.infrastructure.adapters.mappers.CreateUserInputDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +47,7 @@ public class SpringCreateUserUseCaseUnitTest {
     @Mock private PasswordEncoderService passwordEncoderService;
     @Mock private CreateUserRegistrationInvitationUseCase<UserRegistrationInvitationEntity> createUserRegistrationInvitationUseCase;
     @Mock private MailService<UserInvitationEmailPayload> mailService;
+    @Mock private CacheGateway cacheGateway;
     @Mock private CreateUserInputDtoMapper createUserInputDtoMapper;
     @Mock private UserMapper userMapper;
     private CreateUserInputDto inputDto;
@@ -136,6 +139,7 @@ public class SpringCreateUserUseCaseUnitTest {
                 ))
                 .thenReturn(userRegistrationInvitationEntity);
         doNothing().when(mailService).send(any(UserInvitationEmailPayload.class));
+        doNothing().when(cacheGateway).deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
 
         useCase.execute(inputDto, idLoggedUser, loggedUserName);
 
@@ -152,7 +156,9 @@ public class SpringCreateUserUseCaseUnitTest {
         verify(mailService).send(new UserInvitationEmailPayload(
                 userDomain.getFullName(), userDomain.getEmail(), userRegistrationInvitationEntity.getToken(), loggedUserName
         ));
-        verifyNoMoreInteractions(userRepository, createUserInputDtoMapper, passwordEncoderService, userMapper, mailService);
+        verify(cacheGateway).deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
+        verifyNoMoreInteractions(userRepository, createUserInputDtoMapper, passwordEncoderService,
+                userMapper, mailService, cacheGateway);
     }
 
     @Test
@@ -161,10 +167,12 @@ public class SpringCreateUserUseCaseUnitTest {
                 .thenReturn(Optional.of(userEntity));
 
         assertThrows(UserAlreadyExistsException.class, () -> useCase.execute(inputDto, idLoggedUser, loggedUserName));
+
         verify(userRepository).findByPhoneOrEmailOrCpf(
                 Long.parseLong(inputDto.getPhone()), inputDto.getEmail(), inputDto.getCpf()
         );
-        verifyNoInteractions(createUserInputDtoMapper, passwordEncoderService, userMapper, mailService);
+
+        verifyNoInteractions(createUserInputDtoMapper, passwordEncoderService, userMapper, mailService, cacheGateway);
         verifyNoMoreInteractions(userRepository);
     }
 }

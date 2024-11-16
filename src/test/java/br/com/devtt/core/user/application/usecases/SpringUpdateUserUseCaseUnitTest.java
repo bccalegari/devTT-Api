@@ -4,11 +4,17 @@ import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entiti
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.application.exceptions.UserAlreadyExistsException;
 import br.com.devtt.core.user.application.exceptions.UserNotFoundException;
+import br.com.devtt.core.user.application.mappers.UserMapper;
+import br.com.devtt.core.user.domain.entities.User;
 import br.com.devtt.core.user.infrastructure.adapters.dto.UpdateUserUseCaseValidatorDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.requests.UpdateUserInputDto;
+import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetUserOutputDto;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
+import br.com.devtt.core.user.infrastructure.adapters.mappers.GetUserOutputDtoMapper;
 import br.com.devtt.enterprise.abstractions.application.services.ComparatorService;
 import br.com.devtt.enterprise.abstractions.application.services.ValidatorService;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.entities.CityEntity;
 import org.junit.jupiter.api.Test;
@@ -24,14 +30,13 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SpringUpdateUserUseCaseUnitTest {
-    @InjectMocks
-    private SpringUpdateUserUseCase springUpdateUserUseCase;
-    @Mock
-    private UserRepository<UserEntity> userRepository;
-    @Mock
-    private ValidatorService<UpdateUserUseCaseValidatorDto> validatorService;
-    @Mock
-    private ComparatorService comparatorService;
+    @InjectMocks private SpringUpdateUserUseCase springUpdateUserUseCase;
+    @Mock private UserRepository<UserEntity> userRepository;
+    @Mock private ValidatorService<UpdateUserUseCaseValidatorDto> validatorService;
+    @Mock private ComparatorService comparatorService;
+    @Mock private CacheGateway cacheGateway;
+    @Mock private UserMapper domainMapper;
+    @Mock private GetUserOutputDtoMapper adapterMapper;
 
     @Test
     void shouldThrowUserNotFoundExceptionWhenUserIsNotFound() {
@@ -47,7 +52,7 @@ public class SpringUpdateUserUseCaseUnitTest {
         });
 
         verify(userRepository).findById(userToBeUpdatedId);
-        verifyNoInteractions(validatorService, comparatorService);
+        verifyNoInteractions(validatorService, comparatorService, cacheGateway);
     }
 
     @Test
@@ -79,7 +84,7 @@ public class SpringUpdateUserUseCaseUnitTest {
 
         verify(userRepository).findById(userToBeUpdatedId);
         verify(validatorService).execute(validatorDto);
-        verifyNoInteractions(comparatorService);
+        verifyNoInteractions(comparatorService, cacheGateway);
     }
 
     @Test
@@ -120,6 +125,7 @@ public class SpringUpdateUserUseCaseUnitTest {
         verify(validatorService).execute(validatorDto);
         verify(comparatorService).hasChanges(inputDto.getName(), userEntity.getName());
         verifyNoMoreInteractions(userRepository, validatorService);
+        verifyNoInteractions(cacheGateway);
     }
 
     @Test
@@ -166,6 +172,7 @@ public class SpringUpdateUserUseCaseUnitTest {
         verify(comparatorService, times(3)).hasChanges(any(), any());
         verify(userRepository).findByPhone(Long.valueOf(inputDto.getPhone()));
         verifyNoMoreInteractions(validatorService, comparatorService);
+        verifyNoInteractions(cacheGateway);
     }
 
     @Test
@@ -212,6 +219,7 @@ public class SpringUpdateUserUseCaseUnitTest {
         verify(comparatorService, times(4)).hasChanges(any(), any());
         verify(userRepository).findByEmail(inputDto.getEmail());
         verifyNoMoreInteractions(validatorService, comparatorService);
+        verifyNoInteractions(cacheGateway);
     }
 
     @Test
@@ -258,6 +266,7 @@ public class SpringUpdateUserUseCaseUnitTest {
         verify(comparatorService, times(6)).hasChanges(any(), any());
         verify(userRepository).findByCpf(inputDto.getCpf());
         verifyNoMoreInteractions(validatorService, comparatorService);
+        verifyNoInteractions(cacheGateway);
     }
 
     @Test
@@ -288,12 +297,19 @@ public class SpringUpdateUserUseCaseUnitTest {
                 .city(CityEntity.builder().build())
                 .build();
 
+        var userDomainMock = mock(User.class);
+        var userOutputDtoMock = mock(GetUserOutputDto.class);
+
         when(userRepository.findById(userToBeUpdatedId)).thenReturn(Optional.of(userEntity));
         when(userRepository.findByPhone(null)).thenReturn(Optional.empty());
         when(userRepository.findByEmail(null)).thenReturn(Optional.empty());
         when(userRepository.findByCpf(null)).thenReturn(Optional.empty());
         when(validatorService.execute(validatorDto)).thenReturn(true);
         when(comparatorService.hasChanges(any(), any())).thenReturn(true);
+        doNothing().when(cacheGateway).deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
+        doNothing().when(cacheGateway).put(UserCacheKeys.USER.getKey().formatted(userToBeUpdatedId), userOutputDtoMock);
+        when(domainMapper.toDomain(userEntity)).thenReturn(userDomainMock);
+        when(adapterMapper.toDto(userDomainMock)).thenReturn(userOutputDtoMock);
 
         springUpdateUserUseCase.execute(inputDto, userToBeUpdatedId, idLoggedUser, loggedUserRole, loggedUserCompanyId);
 
@@ -304,6 +320,8 @@ public class SpringUpdateUserUseCaseUnitTest {
         verify(userRepository).findByEmail(null);
         verify(userRepository).findByCpf(null);
         verify(userRepository).update(userEntity);
-        verifyNoMoreInteractions(userRepository, validatorService, comparatorService);
+        verify(cacheGateway).deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
+        verify(cacheGateway).put(UserCacheKeys.USER.getKey().formatted(userToBeUpdatedId), userOutputDtoMock);
+        verifyNoMoreInteractions(userRepository, validatorService, comparatorService, cacheGateway);
     }
 }

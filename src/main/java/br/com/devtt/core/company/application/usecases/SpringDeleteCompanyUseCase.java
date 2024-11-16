@@ -5,10 +5,12 @@ import br.com.devtt.core.company.abstractions.infrastructure.adapters.gateway.Co
 import br.com.devtt.core.company.application.exceptions.CompanyNotFoundException;
 import br.com.devtt.core.company.application.exceptions.DeleteOwnCompanyException;
 import br.com.devtt.core.company.application.exceptions.DeleteStandardCompanyException;
+import br.com.devtt.core.company.infrastructure.adapters.gateway.cache.CompanyCacheKeys;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
 import br.com.devtt.core.user.abstractions.application.services.DeleteAllCompanyUsersService;
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.application.exceptions.CoreException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +23,19 @@ public class SpringDeleteCompanyUseCase implements DeleteCompanyUseCase {
     private final CompanyRepository<CompanyEntity> companyRepository;
     private final UserRepository<UserEntity> userRepository;
     private final DeleteAllCompanyUsersService<Integer> deleteAllCompanyUsersService;
+    private final CacheGateway cacheGateway;
 
     @Autowired
     public SpringDeleteCompanyUseCase(
             @Qualifier("HibernateCompanyRepository") CompanyRepository<CompanyEntity> companyRepository,
             @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
-            @Qualifier("SpringDeleteAllCompanyUsersService") DeleteAllCompanyUsersService<Integer> deleteAllCompanyUsersService
+            @Qualifier("SpringDeleteAllCompanyUsersService") DeleteAllCompanyUsersService<Integer> deleteAllCompanyUsersService,
+            @Qualifier("RedisCacheGateway") CacheGateway cacheGateway
     ) {
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
         this.deleteAllCompanyUsersService = deleteAllCompanyUsersService;
+        this.cacheGateway = cacheGateway;
     }
 
 
@@ -59,5 +64,8 @@ public class SpringDeleteCompanyUseCase implements DeleteCompanyUseCase {
         companyEntity.setDeletedBy(idLoggedUser);
 
         companyRepository.delete(companyEntity);
+
+        cacheGateway.delete(CompanyCacheKeys.COMPANY.getKey().formatted(id));
+        cacheGateway.deleteAllFrom(CompanyCacheKeys.COMPANIES_PATTERN.getKey());
     }
 }
