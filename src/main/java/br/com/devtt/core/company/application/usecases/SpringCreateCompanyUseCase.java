@@ -2,13 +2,15 @@ package br.com.devtt.core.company.application.usecases;
 
 import br.com.devtt.core.company.abstractions.application.usecases.CreateCompanyUseCase;
 import br.com.devtt.core.company.abstractions.infrastructure.adapters.gateway.CompanyRepository;
-import br.com.devtt.enterprise.abstractions.application.mappers.DomainMapper;
 import br.com.devtt.core.company.application.exceptions.CompanyAlreadyExistsException;
 import br.com.devtt.core.company.application.mappers.CompanyMapper;
 import br.com.devtt.core.company.domain.entities.Company;
-import br.com.devtt.enterprise.domain.valueobjects.Auditing;
 import br.com.devtt.core.company.domain.valueobjects.Cnpj;
+import br.com.devtt.core.company.infrastructure.adapters.gateway.cache.CompanyCacheKeys;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
+import br.com.devtt.enterprise.abstractions.application.mappers.DomainMapper;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
+import br.com.devtt.enterprise.domain.valueobjects.Auditing;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,14 +20,17 @@ import org.springframework.stereotype.Service;
 @Qualifier("SpringCreateCompanyUseCase")
 public class SpringCreateCompanyUseCase implements CreateCompanyUseCase {
     private final CompanyRepository<CompanyEntity> companyRepository;
+    private final CacheGateway cacheGateway;
     private final DomainMapper<Company, CompanyEntity> companyMapper;
 
     @Autowired
     public SpringCreateCompanyUseCase(
             @Qualifier("HibernateCompanyRepository") CompanyRepository<CompanyEntity> companyRepository,
+            @Qualifier("RedisCacheGateway") CacheGateway cacheGateway,
             CompanyMapper companyMapper
     ) {
         this.companyRepository = companyRepository;
+        this.cacheGateway = cacheGateway;
         this.companyMapper = companyMapper;
     }
 
@@ -46,5 +51,7 @@ public class SpringCreateCompanyUseCase implements CreateCompanyUseCase {
 
         var companyEntity = companyMapper.toEntity(companyDomain);
         companyRepository.save(companyEntity);
+
+        cacheGateway.deleteAllFrom(CompanyCacheKeys.COMPANIES_PATTERN.getKey());
     }
 }

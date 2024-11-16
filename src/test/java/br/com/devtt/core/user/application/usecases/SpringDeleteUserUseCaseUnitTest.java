@@ -4,9 +4,11 @@ import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserR
 import br.com.devtt.core.user.application.exceptions.DeleteOwnUserException;
 import br.com.devtt.core.user.application.exceptions.DeleteStandardUserException;
 import br.com.devtt.core.user.application.exceptions.UserNotFoundException;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
 import br.com.devtt.core.user.invitation.abstractions.infrastructure.adapters.gateway.UserRegistrationInvitationRepository;
 import br.com.devtt.core.user.invitation.infrastructure.adapters.gateway.database.entities.UserRegistrationInvitationEntity;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +27,7 @@ public class SpringDeleteUserUseCaseUnitTest {
     @InjectMocks private SpringDeleteUserUseCase springDeleteUserUseCase;
     @Mock private UserRepository<UserEntity> userRepository;
     @Mock private UserRegistrationInvitationRepository<UserRegistrationInvitationEntity> userRegistrationInvitationRepository;
+    @Mock private CacheGateway cacheGateway;
 
     @Test
     void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
@@ -35,7 +38,7 @@ public class SpringDeleteUserUseCaseUnitTest {
 
         assertThrows(UserNotFoundException.class, () -> springDeleteUserUseCase.execute(idUser, idLoggedUser));
         verify(userRepository).findById(idUser);
-        verifyNoInteractions(userRegistrationInvitationRepository);
+        verifyNoInteractions(userRegistrationInvitationRepository, cacheGateway);
     }
 
     @Test
@@ -48,7 +51,7 @@ public class SpringDeleteUserUseCaseUnitTest {
 
         assertThrows(DeleteOwnUserException.class, () -> springDeleteUserUseCase.execute(idUser, idLoggedUser));
         verify(userRepository).findById(idUser);
-        verifyNoInteractions(userRegistrationInvitationRepository);
+        verifyNoInteractions(userRegistrationInvitationRepository, cacheGateway);
     }
 
     @Test
@@ -61,7 +64,7 @@ public class SpringDeleteUserUseCaseUnitTest {
 
         assertThrows(DeleteStandardUserException.class, () -> springDeleteUserUseCase.execute(idUser, idLoggedUser));
         verify(userRepository).findById(idUser);
-        verifyNoInteractions(userRegistrationInvitationRepository);
+        verifyNoInteractions(userRegistrationInvitationRepository, cacheGateway);
     }
 
     @Test
@@ -71,12 +74,16 @@ public class SpringDeleteUserUseCaseUnitTest {
         var userEntity = UserEntity.builder().id(idUser).build();
 
         when(userRepository.findById(idUser)).thenReturn(Optional.of(userEntity));
+        doNothing().when(cacheGateway).delete(UserCacheKeys.USER.getKey().formatted(idUser));
+        doNothing().when(cacheGateway).deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
 
         springDeleteUserUseCase.execute(idUser, idLoggedUser);
 
         verify(userRepository).findById(idUser);
         verify(userRegistrationInvitationRepository).disableAllRegistrationInvitationsByUserId(idUser, idLoggedUser);
         verify(userRepository).delete(userEntity);
+        verify(cacheGateway).delete(UserCacheKeys.USER.getKey().formatted(idUser));
+        verify(cacheGateway).deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
 
         ArgumentCaptor<UserEntity> userEntityCaptor = ArgumentCaptor.forClass(UserEntity.class);
         verify(userRepository).delete(userEntityCaptor.capture());

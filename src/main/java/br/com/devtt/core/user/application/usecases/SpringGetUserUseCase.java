@@ -5,12 +5,14 @@ import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserR
 import br.com.devtt.core.user.application.exceptions.UserNotFoundException;
 import br.com.devtt.core.user.application.mappers.UserMapper;
 import br.com.devtt.core.user.domain.entities.User;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.dto.GetUserUseCaseValidatorDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetUserOutputDto;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
 import br.com.devtt.core.user.infrastructure.adapters.mappers.GetUserOutputDtoMapper;
 import br.com.devtt.enterprise.abstractions.application.mappers.DomainMapper;
 import br.com.devtt.enterprise.abstractions.application.services.ValidatorService;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.mappers.AdapterMapper;
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,22 +23,31 @@ import org.springframework.stereotype.Service;
 public class SpringGetUserUseCase implements GetUserUseCase<Long, GetUserOutputDto> {
     private final UserRepository<UserEntity> userRepository;
     private final ValidatorService<GetUserUseCaseValidatorDto> validatorService;
+    private final CacheGateway cacheGateway;
     private final DomainMapper<User, UserEntity> userMapper;
     private final AdapterMapper<User, GetUserOutputDto> adapterMapper;
 
     public SpringGetUserUseCase(
             @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
             @Qualifier("GetUserUseCaseValidatorService") ValidatorService<GetUserUseCaseValidatorDto> validatorService,
+            @Qualifier("RedisCacheGateway") CacheGateway cacheGateway,
             UserMapper userMapper, GetUserOutputDtoMapper adapterMapper
     ) {
         this.userRepository = userRepository;
         this.validatorService = validatorService;
+        this.cacheGateway = cacheGateway;
         this.userMapper = userMapper;
         this.adapterMapper = adapterMapper;
     }
 
     @Override
     public GetUserOutputDto execute(Long idUser, Long loggedUserId, String loggedUserRole, Integer loggedUserCompanyId) {
+        var userFromCache = cacheGateway.get(UserCacheKeys.USER.getKey().formatted(idUser));
+
+        if (userFromCache != null) {
+            return (GetUserOutputDto) userFromCache;
+        }
+
         var userEntityOp = userRepository.findById(idUser);
 
         if (userEntityOp.isEmpty()) {
@@ -55,7 +66,11 @@ public class SpringGetUserUseCase implements GetUserUseCase<Long, GetUserOutputD
 
         var user = userMapper.toDomain(userEntity);
 
-        return adapterMapper.toDto(user);
+        var userOutputDto = adapterMapper.toDto(user);
+
+        cacheGateway.put(UserCacheKeys.USER.getKey().formatted(idUser), userOutputDto);
+
+        return userOutputDto;
     }
 
     private GetUserUseCaseValidatorDto buildValidatorDto(

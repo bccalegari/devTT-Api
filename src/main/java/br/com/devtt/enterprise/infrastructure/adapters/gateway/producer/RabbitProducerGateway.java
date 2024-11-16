@@ -30,7 +30,7 @@ public class RabbitProducerGateway implements MailGateway<MailProducerDto> {
     }
 
     private void sendMessage(String exchange, String routingKey, Message message) {
-        log.info("Sending message {} with routing key {} to exchange {}", message.toString(), routingKey, exchange);
+        log.info("[RABBIT::PRODUCER] Sending message to exchange '{}' with routing key '{}'", exchange, routingKey);
         amqpTemplate.send(exchange, routingKey, message);
     }
 }

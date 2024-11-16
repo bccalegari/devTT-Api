@@ -4,11 +4,19 @@ import br.com.devtt.core.user.abstractions.application.usecases.UpdateUserUseCas
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.application.exceptions.UserAlreadyExistsException;
 import br.com.devtt.core.user.application.exceptions.UserNotFoundException;
+import br.com.devtt.core.user.application.mappers.UserMapper;
+import br.com.devtt.core.user.domain.entities.User;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.dto.UpdateUserUseCaseValidatorDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.requests.UpdateUserInputDto;
+import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetUserOutputDto;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
+import br.com.devtt.core.user.infrastructure.adapters.mappers.GetUserOutputDtoMapper;
+import br.com.devtt.enterprise.abstractions.application.mappers.DomainMapper;
 import br.com.devtt.enterprise.abstractions.application.services.ComparatorService;
 import br.com.devtt.enterprise.abstractions.application.services.ValidatorService;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.mappers.AdapterMapper;
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.entities.CityEntity;
 import jakarta.transaction.Transactional;
@@ -21,15 +29,23 @@ public class SpringUpdateUserUseCase implements UpdateUserUseCase<UpdateUserInpu
     private final UserRepository<UserEntity> userRepository;
     private final ValidatorService<UpdateUserUseCaseValidatorDto> validatorService;
     private final ComparatorService comparatorService;
+    private final CacheGateway cacheGateway;
+    private final DomainMapper<User, UserEntity> domainMapper;
+    private final AdapterMapper<User, GetUserOutputDto> adapterMapper;
 
     public SpringUpdateUserUseCase(
             @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
             @Qualifier("UpdateUserUseCaseValidatorService") ValidatorService<UpdateUserUseCaseValidatorDto> validatorService,
-            @Qualifier("ComparatorServiceImpl") ComparatorService comparatorService
+            @Qualifier("ComparatorServiceImpl") ComparatorService comparatorService,
+            @Qualifier("RedisCacheGateway") CacheGateway cacheGateway,
+            UserMapper domainMapper, GetUserOutputDtoMapper adapterMapper
     ) {
         this.userRepository = userRepository;
         this.validatorService = validatorService;
         this.comparatorService = comparatorService;
+        this.cacheGateway = cacheGateway;
+        this.domainMapper = domainMapper;
+        this.adapterMapper = adapterMapper;
     }
 
     @Override
@@ -63,6 +79,12 @@ public class SpringUpdateUserUseCase implements UpdateUserUseCase<UpdateUserInpu
         if (hasChanges) {
             userEntity.setUpdatedBy(idLoggedUser);
             userRepository.update(userEntity);
+
+            var userDomain = domainMapper.toDomain(userEntity);
+            var userOutputDto = adapterMapper.toDto(userDomain);
+
+            cacheGateway.put(UserCacheKeys.USER.getKey().formatted(userToBeUpdatedId), userOutputDto);
+            cacheGateway.deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
         }
     }
 

@@ -5,9 +5,11 @@ import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserR
 import br.com.devtt.core.user.application.exceptions.DeleteOwnUserException;
 import br.com.devtt.core.user.application.exceptions.DeleteStandardUserException;
 import br.com.devtt.core.user.application.exceptions.UserNotFoundException;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
 import br.com.devtt.core.user.invitation.abstractions.infrastructure.adapters.gateway.UserRegistrationInvitationRepository;
 import br.com.devtt.core.user.invitation.infrastructure.adapters.gateway.database.entities.UserRegistrationInvitationEntity;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -18,15 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class SpringDeleteUserUseCase implements DeleteUserUseCase<Long> {
     private final UserRepository<UserEntity> userRepository;
     private final UserRegistrationInvitationRepository<UserRegistrationInvitationEntity> userRegistrationInvitationRepository;
+    private final CacheGateway cacheGateway;
 
     @Autowired
     public SpringDeleteUserUseCase(
             @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
             @Qualifier("HibernateUserRegistrationInvitationRepository")
-            UserRegistrationInvitationRepository<UserRegistrationInvitationEntity> userRegistrationInvitationRepository
+            UserRegistrationInvitationRepository<UserRegistrationInvitationEntity> userRegistrationInvitationRepository,
+            @Qualifier("RedisCacheGateway") CacheGateway cacheGateway
+
     ) {
         this.userRepository = userRepository;
         this.userRegistrationInvitationRepository = userRegistrationInvitationRepository;
+        this.cacheGateway = cacheGateway;
     }
 
     @Override
@@ -53,5 +59,8 @@ public class SpringDeleteUserUseCase implements DeleteUserUseCase<Long> {
 
         userRegistrationInvitationRepository.disableAllRegistrationInvitationsByUserId(idUser, idLoggedUser);
         userRepository.delete(userEntity);
+
+        cacheGateway.delete(UserCacheKeys.USER.getKey().formatted(idUser));
+        cacheGateway.deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
     }
 }

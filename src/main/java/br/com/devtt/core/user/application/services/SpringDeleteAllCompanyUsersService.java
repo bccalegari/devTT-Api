@@ -7,9 +7,11 @@ import br.com.devtt.core.user.abstractions.application.services.DeleteAllCompany
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.application.exceptions.DeleteOwnUserException;
 import br.com.devtt.core.user.application.exceptions.DeleteStandardUserException;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.UserEntity;
 import br.com.devtt.core.user.invitation.abstractions.infrastructure.adapters.gateway.UserRegistrationInvitationRepository;
 import br.com.devtt.core.user.invitation.infrastructure.adapters.gateway.database.entities.UserRegistrationInvitationEntity;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.application.exceptions.CoreException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,17 +23,20 @@ public class SpringDeleteAllCompanyUsersService implements DeleteAllCompanyUsers
     private final CompanyRepository<CompanyEntity> companyRepository;
     private final UserRepository<UserEntity> userRepository;
     private final UserRegistrationInvitationRepository<UserRegistrationInvitationEntity> userRegistrationInvitationRepository;
+    private final CacheGateway cacheGateway;
 
     @Autowired
     public SpringDeleteAllCompanyUsersService(
             @Qualifier("HibernateCompanyRepository") CompanyRepository<CompanyEntity> companyRepository,
             @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
             @Qualifier("HibernateUserRegistrationInvitationRepository")
-            UserRegistrationInvitationRepository<UserRegistrationInvitationEntity> userRegistrationInvitationRepository
+            UserRegistrationInvitationRepository<UserRegistrationInvitationEntity> userRegistrationInvitationRepository,
+            @Qualifier("RedisCacheGateway") CacheGateway cacheGateway
     ) {
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
         this.userRegistrationInvitationRepository = userRegistrationInvitationRepository;
+        this.cacheGateway = cacheGateway;
     }
 
     @Override
@@ -62,5 +67,8 @@ public class SpringDeleteAllCompanyUsersService implements DeleteAllCompanyUsers
 
         userRegistrationInvitationRepository.disableAllRegistrationInvitationsByCompanyId(idCompany, idLoggedUser);
         userRepository.deleteByCompanyId(idCompany, idLoggedUser);
+
+        cacheGateway.deleteAllFrom(UserCacheKeys.USER_PATTERN.getKey());
+        cacheGateway.deleteAllFrom(UserCacheKeys.USERS_PATTERN.getKey());
     }
 }

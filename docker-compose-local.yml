@@ -46,6 +46,27 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:6-alpine
+    container_name: devTT_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+        devTT_network:
+            aliases:
+            - redis
+    healthcheck:
+        test: [ "CMD-SHELL", "redis-cli ping" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
   api:
     build:
         context: .
@@ -68,6 +89,8 @@ services:
       postgres:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
 networks:

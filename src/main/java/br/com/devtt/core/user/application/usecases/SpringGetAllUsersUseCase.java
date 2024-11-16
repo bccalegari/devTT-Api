@@ -4,6 +4,7 @@ import br.com.devtt.core.user.abstractions.application.usecases.GetAllUsersUseCa
 import br.com.devtt.core.user.abstractions.infrastructure.adapters.gateway.UserRepository;
 import br.com.devtt.core.user.application.mappers.UserMapper;
 import br.com.devtt.core.user.domain.entities.User;
+import br.com.devtt.core.user.infrastructure.adapters.gateway.cache.UserCacheKeys;
 import br.com.devtt.core.user.infrastructure.adapters.dto.GetAllUsersUseCaseValidatorDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetAllUsersOutputDto;
 import br.com.devtt.core.user.infrastructure.adapters.dto.responses.GetUserOutputDto;
@@ -11,6 +12,7 @@ import br.com.devtt.core.user.infrastructure.adapters.gateway.database.entities.
 import br.com.devtt.core.user.infrastructure.adapters.mappers.GetUserOutputDtoMapper;
 import br.com.devtt.enterprise.abstractions.application.mappers.DomainMapper;
 import br.com.devtt.enterprise.abstractions.application.services.ValidatorService;
+import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.Page;
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.mappers.AdapterMapper;
 import br.com.devtt.enterprise.application.exceptions.InsufficientCredentialsException;
@@ -25,16 +27,19 @@ import java.util.List;
 public class SpringGetAllUsersUseCase implements GetAllUsersUseCase<GetAllUsersOutputDto> {
     private final UserRepository<UserEntity> userRepository;
     private final ValidatorService<GetAllUsersUseCaseValidatorDto> validatorService;
+    private final CacheGateway cacheGateway;
     private final DomainMapper<User, UserEntity> userMapper;
     private final AdapterMapper<User, GetUserOutputDto> adapterMapper;
 
     public SpringGetAllUsersUseCase(
             @Qualifier("HibernateUserRepository") UserRepository<UserEntity> userRepository,
             @Qualifier("GetAllUsersUseCaseValidatorService") ValidatorService<GetAllUsersUseCaseValidatorDto> validatorService,
+            @Qualifier("RedisCacheGateway") CacheGateway cacheGateway,
             UserMapper userMapper, GetUserOutputDtoMapper adapterMapper
     ) {
         this.userRepository = userRepository;
         this.validatorService = validatorService;
+        this.cacheGateway = cacheGateway;
         this.userMapper = userMapper;
         this.adapterMapper = adapterMapper;
     }
@@ -47,6 +52,13 @@ public class SpringGetAllUsersUseCase implements GetAllUsersUseCase<GetAllUsersO
         Page<UserEntity> userEntityPage;
         var paginationParams = new PaginationParams(page, size);
 
+        var usersFromCache = cacheGateway
+                .get(UserCacheKeys.USERS_PAGED.getKey().formatted(page, size, idCompany, search));
+
+        if (usersFromCache != null) {
+            return (GetAllUsersOutputDto) usersFromCache;
+        }
+
         userEntityPage = userRepository.findAll(paginationParams, search, idCompany);
 
         var validatorDto = buildValidatorDto(idCompany, loggedUserRole, loggedUserCompanyId);
@@ -56,9 +68,13 @@ public class SpringGetAllUsersUseCase implements GetAllUsersUseCase<GetAllUsersO
         }
 
         if (userEntityPage.getContent().isEmpty()) {
-            return new GetAllUsersOutputDto(
-                    paginationParams.getCurrentPage(), paginationParams.getSize(), 0L, 0L, List.of()
-            );
+            return GetAllUsersOutputDto.builder()
+                    .currentPage(paginationParams.getCurrentPage())
+                    .size(paginationParams.getSize())
+                    .totalElements(0L)
+                    .totalPages(0L)
+                    .users(List.of())
+                    .build();
         }
 
         var userDomainList = userEntityPage.getContent().stream()
@@ -69,10 +85,17 @@ public class SpringGetAllUsersUseCase implements GetAllUsersUseCase<GetAllUsersO
                 .map(adapterMapper::toDto)
                 .toList();
 
-        return new GetAllUsersOutputDto(
-                paginationParams.getCurrentPage(), paginationParams.getSize(),
-                userEntityPage.getTotalElements(), userEntityPage.getTotalPages(), usersDtoList
-        );
+        var usersOutputDto = GetAllUsersOutputDto.builder()
+                .currentPage(paginationParams.getCurrentPage())
+                .size(paginationParams.getSize())
+                .totalElements(userEntityPage.getTotalElements())
+                .totalPages(userEntityPage.getTotalPages())
+                .users(usersDtoList)
+                .build();
+
+        cacheGateway.put(UserCacheKeys.USERS_PAGED.getKey().formatted(page, size, idCompany, search), usersOutputDto);
+
+        return usersOutputDto;
     }
 
     private GetAllUsersUseCaseValidatorDto buildValidatorDto(Integer idCompany, String loggedUserRole, Integer loggedUserCompanyId) {
