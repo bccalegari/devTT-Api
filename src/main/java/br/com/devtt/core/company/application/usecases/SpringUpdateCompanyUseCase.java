@@ -26,20 +26,20 @@ public class SpringUpdateCompanyUseCase implements UpdateCompanyUseCase {
     private final ComparatorService comparatorService;
     private final CacheGateway cacheGateway;
     private final DomainMapper<Company, CompanyEntity> domainMapper;
-    private final AdapterMapper<Company, GetCompanyOutputDto> adapterMapper;
+    private final AdapterMapper<Company, GetCompanyOutputDto> responseMapper;
 
     @Autowired
     public SpringUpdateCompanyUseCase(
             @Qualifier("HibernateCompanyRepository") CompanyRepository<CompanyEntity> companyRepository,
             @Qualifier("ComparatorServiceImpl") ComparatorService comparatorService,
             @Qualifier("RedisCacheGateway") CacheGateway cacheGateway,
-            CompanyMapper domainMapper, GetCompanyOutputDtoMapper adapterMapper
+            CompanyMapper domainMapper, GetCompanyOutputDtoMapper responseMapper
     ) {
         this.companyRepository = companyRepository;
         this.comparatorService = comparatorService;
         this.cacheGateway = cacheGateway;
         this.domainMapper = domainMapper;
-        this.adapterMapper = adapterMapper;
+        this.responseMapper = responseMapper;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class SpringUpdateCompanyUseCase implements UpdateCompanyUseCase {
             companyRepository.update(companyEntity);
 
             var companyDomain = domainMapper.toDomain(companyEntity);
-            var companyOutputDto = adapterMapper.toDto(companyDomain);
+            var companyOutputDto = responseMapper.toDto(companyDomain);
 
             cacheGateway.deleteAllFrom(CompanyCacheKeys.COMPANIES_PATTERN.getKey());
             cacheGateway.put(CompanyCacheKeys.COMPANY.getKey().formatted(id), companyOutputDto);

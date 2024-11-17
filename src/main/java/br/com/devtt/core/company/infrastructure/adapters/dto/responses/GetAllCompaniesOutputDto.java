@@ -1,4 +1,4 @@
-package br.com.devtt.core.user.infrastructure.adapters.dto.responses;
+package br.com.devtt.core.company.infrastructure.adapters.dto.responses;
 
 import br.com.devtt.enterprise.infrastructure.adapters.dto.responses.AbstractPagedOutputDto;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -13,21 +13,21 @@ import java.util.List;
 
 @SuperBuilder
 @Getter
-@EqualsAndHashCode(of = "users", callSuper = false)
-public class GetAllUsersOutputDto extends AbstractPagedOutputDto implements Serializable {
+@EqualsAndHashCode(of = "companies", callSuper = false)
+public class GetAllCompaniesOutputDto extends AbstractPagedOutputDto implements Serializable {
     @Serial
-    private static final long serialVersionUID = -5759546880803564199L;
-    private final List<GetUserOutputDto> users;
+    private static final long serialVersionUID = -6154341971273321968L;
+    private final List<GetCompanyOutputDto> companies;
 
     @JsonCreator
-    public GetAllUsersOutputDto(
+    public GetAllCompaniesOutputDto(
+            @JsonProperty("companies") List<GetCompanyOutputDto> companies,
             @JsonProperty("page") int page,
             @JsonProperty("size") int size,
-            @JsonProperty("totalPages") long totalPages,
             @JsonProperty("totalElements") long totalElements,
-            @JsonProperty("users") List<GetUserOutputDto> users
+            @JsonProperty("totalPages") long totalPages
     ) {
         super(page, size, totalElements, totalPages);
-        this.users = users;
+        this.companies = companies;
     }
 }

@@ -3,7 +3,7 @@ package br.com.devtt.core.company.infrastructure.adapters.controllers;
 import br.com.devtt.core.company.abstractions.application.usecases.*;
 import br.com.devtt.core.company.infrastructure.adapters.dto.requests.CreateCompanyInputDto;
 import br.com.devtt.core.company.infrastructure.adapters.dto.requests.UpdateCompanyInputDto;
-import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetAllCompaniesOutputOutputDto;
+import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetAllCompaniesOutputDto;
 import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetCompanyFilterOutputDto;
 import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetCompanyOutputDto;
 import br.com.devtt.enterprise.infrastructure.adapters.dto.responses.OutputDto;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 public class SpringCompanyController {
     private final CreateCompanyUseCase createCompanyUseCase;
     private final UpdateCompanyUseCase updateCompanyUseCase;
-    private final GetAllCompaniesUseCase<GetAllCompaniesOutputOutputDto> getAllCompaniesUseCase;
+    private final GetAllCompaniesUseCase<GetAllCompaniesOutputDto> getAllCompaniesUseCase;
     private final GetCompanyUseCase<GetCompanyOutputDto> getCompanyUseCase;
     private final DeleteCompanyUseCase deleteCompanyUseCase;
     private final GetCompanyFilterUseCase<GetCompanyFilterOutputDto> getCompanyFilterUseCase;
@@ -38,7 +38,7 @@ public class SpringCompanyController {
     public SpringCompanyController(
             @Qualifier("SpringCreateCompanyUseCase") CreateCompanyUseCase createCompanyUseCase,
             @Qualifier("SpringUpdateCompanyUseCase") UpdateCompanyUseCase updateCompanyUseCase,
-            @Qualifier("SpringGetAllCompaniesUseCase") GetAllCompaniesUseCase<GetAllCompaniesOutputOutputDto> getAllCompaniesUseCase,
+            @Qualifier("SpringGetAllCompaniesUseCase") GetAllCompaniesUseCase<GetAllCompaniesOutputDto> getAllCompaniesUseCase,
             @Qualifier("SpringGetCompanyUseCase") GetCompanyUseCase<GetCompanyOutputDto> getCompanyUseCase,
             @Qualifier("SpringDeleteCompanyUseCase") DeleteCompanyUseCase deleteCompanyUseCase,
             @Qualifier("SpringGetCompanyFilterUseCase") GetCompanyFilterUseCase<GetCompanyFilterOutputDto> getCompanyFilterUseCase
@@ -130,7 +130,7 @@ public class SpringCompanyController {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = GetAllCompaniesOutputOutputDto.class)
+                                    schema = @Schema(implementation = GetAllCompaniesOutputDto.class)
                             )),
                     @ApiResponse(responseCode = "400", description = "Requisição inválida",
                             content = @Content(
@@ -154,7 +154,7 @@ public class SpringCompanyController {
                             ))
             }
     )
-    public ResponseEntity<GetAllCompaniesOutputOutputDto> getAll(
+    public ResponseEntity<GetAllCompaniesOutputDto> getAll(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String cnpj,
             @RequestParam(required = false, defaultValue = "0") Integer page,

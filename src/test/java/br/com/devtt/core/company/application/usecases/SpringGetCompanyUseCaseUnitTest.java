@@ -10,6 +10,7 @@ import br.com.devtt.core.company.infrastructure.adapters.gateway.cache.CompanyCa
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
 import br.com.devtt.core.company.infrastructure.adapters.mappers.GetCompanyOutputDtoMapper;
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,7 @@ public class SpringGetCompanyUseCaseUnitTest {
     @Mock private CompanyMapper companyMapper;
     @Mock private GetCompanyOutputDtoMapper responseMapper;
     @Mock private CacheGateway cacheGateway;
+    @Mock private ObjectMapper objectMapper;
 
     private CompanyEntity companyEntity;
     private Company company;
@@ -54,6 +56,7 @@ public class SpringGetCompanyUseCaseUnitTest {
     @Test
     void shouldGetCompanyFromCache() {
         when(cacheGateway.get(CompanyCacheKeys.COMPANY.getKey().formatted(1))).thenReturn(companyOutputDto);
+        when(objectMapper.convertValue(companyOutputDto, GetCompanyOutputDto.class)).thenReturn(companyOutputDto);
 
         var companyOutputDto = springGetCompanyUseCase.execute(1);
 

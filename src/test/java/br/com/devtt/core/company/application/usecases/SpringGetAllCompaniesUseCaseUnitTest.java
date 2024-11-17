@@ -4,7 +4,7 @@ import br.com.devtt.core.company.abstractions.infrastructure.adapters.gateway.Co
 import br.com.devtt.core.company.application.mappers.CompanyMapper;
 import br.com.devtt.core.company.domain.entities.Company;
 import br.com.devtt.core.company.domain.valueobjects.Cnpj;
-import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetAllCompaniesOutputOutputDto;
+import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetAllCompaniesOutputDto;
 import br.com.devtt.core.company.infrastructure.adapters.dto.responses.GetCompanyOutputDto;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.cache.CompanyCacheKeys;
 import br.com.devtt.core.company.infrastructure.adapters.gateway.database.entities.CompanyEntity;
@@ -12,6 +12,7 @@ import br.com.devtt.core.company.infrastructure.adapters.mappers.GetCompanyOutpu
 import br.com.devtt.enterprise.abstractions.infrastructure.adapters.gateway.CacheGateway;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PageImpl;
 import br.com.devtt.enterprise.infrastructure.adapters.gateway.database.PaginationParams;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,7 @@ public class SpringGetAllCompaniesUseCaseUnitTest {
     @Mock private CompanyMapper companyMapper;
     @Mock private GetCompanyOutputDtoMapper responseMapper;
     @Mock private CacheGateway cacheGateway;
+    @Mock private ObjectMapper objectMapper;
 
     private String name;
     private String cnpj;
@@ -42,7 +44,7 @@ public class SpringGetAllCompaniesUseCaseUnitTest {
     private List<CompanyEntity> companyEntityList;
     private Company company;
     private GetCompanyOutputDto companyOutputDto;
-    private GetAllCompaniesOutputOutputDto companiesOutputDto;
+    private GetAllCompaniesOutputDto companiesOutputDto;
 
     @BeforeEach
     void setUp() {
@@ -59,7 +61,7 @@ public class SpringGetAllCompaniesUseCaseUnitTest {
                 .cnpj(new Cnpj("12345678901234"))
                 .build();
         companyOutputDto = new GetCompanyOutputDto(1, "Company", "12345678901234");
-        companiesOutputDto = GetAllCompaniesOutputOutputDto.builder()
+        companiesOutputDto = GetAllCompaniesOutputDto.builder()
                 .currentPage(page)
                 .size(size)
                 .totalPages(1L)
@@ -74,6 +76,8 @@ public class SpringGetAllCompaniesUseCaseUnitTest {
         cnpj = null;
 
         when(cacheGateway.get(CompanyCacheKeys.COMPANIES_PAGED.getKey().formatted(null, null, page, size)))
+                .thenReturn(companiesOutputDto);
+        when(objectMapper.convertValue(companiesOutputDto, GetAllCompaniesOutputDto.class))
                 .thenReturn(companiesOutputDto);
 
         var outputDto = springGetAllCompaniesUseCase.execute(name, cnpj, page, size);
@@ -144,7 +148,7 @@ public class SpringGetAllCompaniesUseCaseUnitTest {
     void shouldReturnEmptyListWhenNoCompanyIsFound() {
         name = null;
         cnpj = null;
-        companiesOutputDto = GetAllCompaniesOutputOutputDto.builder()
+        companiesOutputDto = GetAllCompaniesOutputDto.builder()
                 .currentPage(page)
                 .size(size)
                 .totalPages(0L)

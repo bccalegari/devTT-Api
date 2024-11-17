@@ -112,6 +112,8 @@ public class HibernateUserRepository implements UserRepository<UserEntity> {
                 AND (
                     LOWER(c.name || ' ' || c.lastName) LIKE ('%' || LOWER(:search) || '%')
                     OR LOWER(c.email) LIKE ('%' || LOWER(:search) || '%')
+                    OR CAST(c.phone AS STRING) = :search
+                    OR CAST(c.cpf AS STRING) = :search
                 )
                 """
                 : "";
